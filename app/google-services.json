@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "923415973391",
+    "firebase_url": "https://respond-f2e2d.firebaseio.com",
+    "project_id": "respond-f2e2d",
+    "storage_bucket": "respond-f2e2d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:923415973391:android:cc902bfaa0400555",
+        "android_client_info": {
+          "package_name": "com.marcuthh.respond"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "923415973391-d0200t8fre58u9fpp79ng4ntchpas64r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.marcuthh.respond",
+            "certificate_hash": "7d44b8027bb1bc8edaaaef341f0d5d03ca9ea7d2"
+          }
+        },
+        {
+          "client_id": "923415973391-keblfv97ds5b5tq56v04ptbdhqqeieb7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaKRt6xJ38c1inCZeVOZSaRm-bIm6T19o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "923415973391-keblfv97ds5b5tq56v04ptbdhqqeieb7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

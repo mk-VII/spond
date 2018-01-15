@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">spond</string>
+
+    <string name="chats_fragment">Chats fragment</string>
+    <string name="invites_fragment">Invites fragment</string>
+    <string name="contacts_fragment">Contacts fragment</string>
+
+    <string name="menu_sign_out">Sign out</string>
+    <string name="menu_account">My account</string>
+    <string name="action_settings">Settings</string>
+
+    <!--account details-->
+    <string name="title_activity_account">Account Data</string>
+    <string name="account_hint_yourName">Your name</string>
+    <string name="account_hint_displayName">Display name</string>
+    <string name="account_hint_phone">Phone number</string>
+    <string name="account_hint_email">Email address</string>
+    <string name="account_input_not_empty_error">cannot be blank!</string>
+    <string name="account_input_not_both_empty_error">cannot both be blank!</string>
+    <string name="account_photo_tag">your selected account photo</string>
+    <!--account page button text-->
+    <string name="account_save">Save account data</string>
+    <string name="account_clear_photo">Remove photo</string>
+    <string name="account_edit_photo">Change photo</string>
+
+</resources>
