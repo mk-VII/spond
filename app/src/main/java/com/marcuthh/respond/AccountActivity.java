@@ -183,9 +183,7 @@ public class AccountActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CAMERA) {
                 if (data.getExtras() != null) {
-                    Bitmap imageCaptured = (Bitmap) data.getExtras().get("data");
-                    Uri uri = (Uri) data.getExtras().get(MediaStore.EXTRA_OUTPUT);
-                    newAccountPhotoUri = getImageUri(getApplicationContext(), imageCaptured);
+                    newAccountPhotoUri = (Uri) data.getExtras().get(MediaStore.EXTRA_OUTPUT);
                     newAccountPhotoFileName = getFileNameFromURI(newAccountPhotoUri);
                     if (!newAccountPhotoFileName.equals("")) {
                         appAccountPhotoChanged = true;
@@ -494,6 +492,7 @@ public class AccountActivity extends AppCompatActivity {
         cropIntent.putExtra("scaleUpIfNeeded", true);
         cropIntent.putExtra("return-data", true);
 
+        cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(cropIntent, REQUEST_CROP);
     }
 
@@ -692,22 +691,40 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (optionItems[i].equals(OPTION_CAMERA)) {
-                    //open camera to capture image
+                    //intent to open device camera
                     Intent cameraIntent =
                             new Intent(
                                     MediaStore.ACTION_IMAGE_CAPTURE
                             );
+
+                    //create 'Spond' folder inside photo directory
+                    //target folder for image to be saved
                     File imagesFolder =
                             new File(
                                     Environment.getExternalStoragePublicDirectory(
                                             Environment.DIRECTORY_PICTURES),
                                     getString(R.string.app_name)
                             );
-                    imagesFolder.mkdirs();
+                    //create directory if it doesn't already exist
+                    imagesFolder.mkdirs(); //bool return value not needed
+
+                    //create file with unique id
                     File image = createFileAtUniquePath(imagesFolder);
-                    Uri uriSavedImage = Uri.fromFile(image);
+                    //use authority for AndroidManifest to create permission
+                    //to get uri from temporary file in app
+                    String fileProviderAuthority = getApplicationContext().getPackageName() +
+                            getString(R.string.authorities_fileprovider);
+                    Uri uriSavedImage = FileProvider.getUriForFile(
+                            getApplicationContext(),
+                            fileProviderAuthority,
+                            image
+                    );
+
+                    //pass URI to intent so it will be available in activity result
                     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
-                    //requires permission request on first attempt
+                    //grant read/write permissions with file
+                    cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     startActivityForResult(cameraIntent, REQUEST_CAMERA);
                 } else if (optionItems[i].equals(OPTION_GALLERY)) {
                     Intent pickIntent =

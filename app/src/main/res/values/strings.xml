@@ -23,4 +23,6 @@
     <string name="account_clear_photo">Remove photo</string>
     <string name="account_edit_photo">Change photo</string>
 
+    <!--providers & authorities-->
+    <string name="authorities_fileprovider">.fileprovider</string>
 </resources>
