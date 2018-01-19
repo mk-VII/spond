@@ -1,5 +1,6 @@
 package com.marcuthh.respond;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class UserAccount {
@@ -77,9 +78,11 @@ public class UserAccount {
 
     public String getAccountPhotoName() { return accountPhotoName; }
 
-    public void setAccountPhotoName(String accountPhotoName) {
+    public void setAccountPhotoName(String accountPhotoName, boolean appendTolist) {
         this.accountPhotoName = accountPhotoName;
-        addAccountPhotoName(new String[]{accountPhotoName});
+        if (appendTolist) {
+            addAccountPhotoName(new String[]{accountPhotoName});
+        }
     }
 
     public boolean isComplete() { return isComplete; }
@@ -93,35 +96,36 @@ public class UserAccount {
         if (surname == null) { surname = ""; }
         if (displayName == null) { displayName = ""; }
         if (accountPhotoName == null) { accountPhotoName = ""; }
+        if (accountPhotoNames == null) { accountPhotoNames = ""; }
     }
 
     public String buildAccountPhotoNodeFilter(String u_Id, boolean appendFileName) {
         if (!u_Id.equals("")) {
             String filterString = "images/users/" + u_Id + "/account_photos";
             if (appendFileName) {
-                filterString +=  accountPhotoName;
+                filterString += File.separator + accountPhotoName;
             }
             return filterString;
         }
         return "";
     }
 
-    public boolean usesDefaultPhoto() {
-        return accountPhotoName.equals("");
-    }
+    public boolean usesDefaultPhoto() { return accountPhotoName.equals(""); }
 
     public String getAccountPhotoNames() { return accountPhotoNames; }
 
     private void addAccountPhotoName(String[] photoNames) {
+        if (accountPhotoNames == null) { accountPhotoNames = ""; }
         StringBuilder builder = new StringBuilder(accountPhotoNames);
-        for (int i = 0; i < photoNames.length; i++)
-        {
-            if (!photoNames[i].equals("")) {
+        for (String photoName : photoNames) {
+            if (!photoName.equals("")) {
                 if (!builder.toString().equals("")) {
                     builder.append(",");
                 }
-                builder.append(photoNames[i]);
+                builder.append(photoName);
             }
         }
+        //re-assign updated comma-separated list to string
+        accountPhotoNames = builder.toString();
     }
 }

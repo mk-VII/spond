@@ -1,5 +1,8 @@
 package com.marcuthh.respond;
 
+import android.*;
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -22,7 +26,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+//API imports
+//import com.facebook.FacebookSdk;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -203,7 +210,7 @@ public class AccountActivity extends AppCompatActivity {
                 //update URI to store cropped image object
                 //flag and file name will already be set from camera or gallery selection
                 newAccountPhotoUri = data.getData();
-                img_account.setImageURI(newAccountPhotoUri);
+                Glide.with(getApplicationContext()).load(newAccountPhotoUri).into(img_account);
             }
         }
     }
@@ -308,7 +315,7 @@ public class AccountActivity extends AppCompatActivity {
         if (appAccountPhotoChanged) {
             if (!(newAccountPhotoUri == null)) {
                 //use newly-added image that has not yet been committed to storage
-                img_account.setImageURI(newAccountPhotoUri);
+                Glide.with(getApplicationContext()).load(newAccountPhotoUri).into(img_account);
             } else {
                 //previous photo removed
                 //use app default image
@@ -363,7 +370,7 @@ public class AccountActivity extends AppCompatActivity {
         if (appAccountPhotoChanged) {
             //sets file name either to new instance or to empty
             //which will trigger use of default image
-            accountData.setAccountPhotoName(newAccountPhotoFileName);
+            accountData.setAccountPhotoName(newAccountPhotoFileName, false);
         }
 
         //account flagged as completed once first save has been made
@@ -417,12 +424,43 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(
-                inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
+    public Uri getImageContentUri(Context inContext, String absPath) {
+        Cursor cursor = inContext.getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                new String[]{MediaStore.Images.Media._ID},
+                MediaStore.Images.Media.DATA + "=? ",
+                new String[]{absPath}, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(id));
+        } else if (absPath.equals("")) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DATA, absPath);
+            return inContext.getContentResolver().insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean storagePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                requestPermissions(
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_ACCESS_STORAGE
+                );
+                return false;
+            }
+        } else {
+            //permission granted automatically
+            return true;
+        }
     }
 
     public String getFileNameFromURI(Uri fileUri) {
@@ -492,7 +530,10 @@ public class AccountActivity extends AppCompatActivity {
         cropIntent.putExtra("scaleUpIfNeeded", true);
         cropIntent.putExtra("return-data", true);
 
-        cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        cropIntent.addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        );
         startActivityForResult(cropIntent, REQUEST_CROP);
     }
 
@@ -512,7 +553,13 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private String buildNewCopyNumberString(String[] existingFiles, String fileName) {
+        String fileSuffix = "";
         while (Arrays.asList(existingFiles).contains(fileName)) {
+            //remove file type extension from name
+            //will be re-appended once version number is added
+            fileSuffix = fileName.substring(fileName.lastIndexOf('.'));
+            fileName = fileName.replaceAll(fileSuffix, "");
+
             if (!fileName.contains(IMAGE_COPY_TAG)) {
                 //has only one duplicate
                 //needs first copy tag assigning
@@ -532,9 +579,11 @@ public class AccountActivity extends AppCompatActivity {
                         fileName.replace(oldVersionString, newVersionString);
             }
         }
+
         //return original filename
         //with appended or updated copy number
-        return fileName;
+        //return updated filename and extension
+        return fileName + fileSuffix;
     }
 
     //methods to update user data in firebase//
@@ -557,8 +606,10 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void writeUserAccountToDB() {
-        mDbRef.child(TBL_USERS).child(mAuth.getUid()).setValue(appUser)
-                .addOnFailureListener(accountUpdateFailedListener());
+        if (mAuth.getUid() != null) {
+            mDbRef.child(mAuth.getUid()).setValue(appUser)
+                    .addOnFailureListener(accountUpdateFailedListener());
+        }
     }
 
     private void writeRegDataToDB() {
@@ -691,41 +742,61 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (optionItems[i].equals(OPTION_CAMERA)) {
-                    //intent to open device camera
-                    Intent cameraIntent =
-                            new Intent(
-                                    MediaStore.ACTION_IMAGE_CAPTURE
-                            );
+                    if (storagePermissionGranted()) {
+                        //intent to open device camera
+                        Intent cameraIntent =
+                                new Intent(
+                                        MediaStore.ACTION_IMAGE_CAPTURE
+                                );
 
-                    //create 'Spond' folder inside photo directory
-                    //target folder for image to be saved
-                    File imagesFolder =
-                            new File(
-                                    Environment.getExternalStoragePublicDirectory(
-                                            Environment.DIRECTORY_PICTURES),
-                                    getString(R.string.app_name)
-                            );
-                    //create directory if it doesn't already exist
-                    imagesFolder.mkdirs(); //bool return value not needed
+                        //target folder for image to be saved
+                        File imagesFolder =
+                                new File(
+                                        Environment.getExternalStoragePublicDirectory(
+                                                Environment.DIRECTORY_PICTURES),
+                                        getString(R.string.app_name)
+                                );
 
-                    //create file with unique id
-                    File image = createFileAtUniquePath(imagesFolder);
-                    //use authority for AndroidManifest to create permission
-                    //to get uri from temporary file in app
-                    String fileProviderAuthority = getApplicationContext().getPackageName() +
-                            getString(R.string.authorities_fileprovider);
-                    Uri uriSavedImage = FileProvider.getUriForFile(
-                            getApplicationContext(),
-                            fileProviderAuthority,
-                            image
-                    );
+                        //used to track whether path existence is progressing as planned
+                        //true and checked on each new create, only set false when a create fails
+                        boolean success = true;
+                        if (!imagesFolder.exists()) {
+                            //create directory if it doesn't already exist
+                            success = imagesFolder.mkdirs();
+                        }
+                        if (success) { //folder exists at this point
+                            //create file with unique id, inside folder
+                            File image = createFileAtUniquePath(imagesFolder);
+                            try {
+                                success = image.createNewFile();
+                                if (success) {
 
-                    //pass URI to intent so it will be available in activity result
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
-                    //grant read/write permissions with file
-                    cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    startActivityForResult(cameraIntent, REQUEST_CAMERA);
+                                    Uri u = getImageContentUri(getApplicationContext(), image.getAbsolutePath());
+
+//                                    //use authority for AndroidManifest to create permission
+//                                    //to get uri from temporary file in app
+//                                    String fileProviderAuthority = getApplicationContext().getPackageName() +
+//                                            getString(R.string.authorities_fileprovider);
+//                                    Uri uriSavedImage = FileProvider.getUriForFile(
+//                                            getApplicationContext(),
+//                                            fileProviderAuthority,
+//                                            image
+//                                    );
+
+                                    //pass URI to intent so it will be available in activity result
+                                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, u);
+                                    //grant read/write permissions with file
+                                    cameraIntent.addFlags(
+                                            Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                    );
+                                    startActivityForResult(cameraIntent, REQUEST_CAMERA);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 } else if (optionItems[i].equals(OPTION_GALLERY)) {
                     Intent pickIntent =
                             new Intent(
@@ -891,8 +962,8 @@ public class AccountActivity extends AppCompatActivity {
     private OnSuccessListener<Uri> fileFoundListener() {
         return new OnSuccessListener<Uri>() {
             @Override
-            public void onSuccess(Uri uri) {
-                img_account.setImageURI(uri);
+            public void onSuccess(Uri fileUri) {
+                Glide.with(getApplicationContext()).load(fileUri).into(img_account);
             }
         };
     }
@@ -947,8 +1018,11 @@ public class AccountActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 //file successfully uploaded to storage
                 //update user account to point to new file
-                appUser.setAccountPhotoName(newAccountPhotoFileName);
+                appUser.setAccountPhotoName(newAccountPhotoFileName, true);
                 //also adds file name to list of all used account photos
+
+                //called here so that async method still updates list of photo names
+                writeUserAccountToDB();
             }
         };
     }

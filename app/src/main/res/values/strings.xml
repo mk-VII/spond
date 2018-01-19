@@ -25,4 +25,7 @@
 
     <!--providers & authorities-->
     <string name="authorities_fileprovider">.fileprovider</string>
+
+    <!--api data-->
+    <string name="facebook_app_id">782183328632077</string>
 </resources>
