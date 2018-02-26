@@ -15,14 +15,14 @@ public class UserAccount {
 
     //flag to set up full account details after registration
     //always begins as false
-    private boolean isComplete = false;
+    private boolean complete;
 
     public UserAccount() {}
 
     public UserAccount(String phoneNumber, String emailAddress,
                        String firstName, String surname, String displayName,
                        String accountPhotoName, String accountPhotoNames,
-                       boolean isComplete) {
+                       boolean complete) {
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.firstName = firstName;
@@ -30,7 +30,7 @@ public class UserAccount {
         this.displayName = displayName;
         this.accountPhotoName = accountPhotoName;
         this.accountPhotoNames = accountPhotoNames;
-        this.isComplete = isComplete;
+        this.complete = complete;
 
         //set any null values to equal ""
         removeNulls();
@@ -85,9 +85,9 @@ public class UserAccount {
         }
     }
 
-    public boolean isComplete() { return isComplete; }
+    public boolean isComplete() { return complete; }
 
-    public void setComplete() { isComplete = true; }
+    public void setComplete() { complete = true; }
 
     private void removeNulls() {
         if (phoneNumber == null) { phoneNumber = ""; }

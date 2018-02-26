@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Arrays;
 
@@ -100,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         mAuthListener = createAuthListener();
+
+        //test token value
+        Log.d(TAG, "Refreshed token: " + FirebaseInstanceId.getInstance().getToken());
     }
 
     private FirebaseAuth.AuthStateListener createAuthListener() {

@@ -15,12 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class ContactsFragment extends Fragment {
-
 
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 65636;
@@ -74,8 +72,8 @@ public class ContactsFragment extends Fragment {
         //...
     }
 
-    public ArrayList<PhoneContact> getContacts() {
-        ArrayList<PhoneContact> phoneContacts = new ArrayList<>();
+    public ArrayList<Contact> getContacts() {
+        ArrayList<Contact> phoneContacts = new ArrayList<>();
 
         //return all contacts from phone
         Cursor cursor = null;
@@ -115,7 +113,7 @@ public class ContactsFragment extends Fragment {
 
                 if (phoneNumbers.length > 0 || emailAddresses.length > 0) {
                     //only display if there is at least one form of contact
-                    phoneContacts.add(new PhoneContact(displayName, phoneNumbers, emailAddresses));
+                    phoneContacts.add(new Contact(displayName, phoneNumbers, emailAddresses));
                 }
             }
 

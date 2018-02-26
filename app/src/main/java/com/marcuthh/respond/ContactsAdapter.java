@@ -13,11 +13,11 @@ public class ContactsAdapter extends BaseAdapter {
     //----------------< Adapter_for_Android_Contacts() >----------------
 //< Variables >
     Context mContext;
-    List<PhoneContact> mList_Android_Contacts;
+    List<Contact> mList_Android_Contacts;
 //</ Variables >
 
     //< constructor with ListArray >
-    public ContactsAdapter(Context mContext, ArrayList<PhoneContact> mContact) {
+    public ContactsAdapter(Context mContext, ArrayList<Contact> mContact) {
         this.mContext = mContext;
         this.mList_Android_Contacts = mContact;
     }
@@ -50,7 +50,7 @@ public class ContactsAdapter extends BaseAdapter {
 
 //< show values >
         //instance for contact object at current index
-        PhoneContact contact = mList_Android_Contacts.get(position);
+        Contact contact = mList_Android_Contacts.get(position);
 
         textview_contact_Name.setText(contact.getContactName());
 
