@@ -3,7 +3,7 @@ package com.marcuthh.respond;
 import java.io.File;
 import java.util.ArrayList;
 
-public class UserAccount {
+public class Sponder {
 
     private String phoneNumber;
     private String emailAddress;
@@ -12,17 +12,22 @@ public class UserAccount {
     private String displayName;
     private String accountPhotoName;
     private String accountPhotoNames;
+    private String status;
+    private long lastOnline;
 
     //flag to set up full account details after registration
     //always begins as false
     private boolean complete;
+    //token set on initial registration
+    private String token;
 
-    public UserAccount() {}
+    public Sponder() {}
 
-    public UserAccount(String phoneNumber, String emailAddress,
-                       String firstName, String surname, String displayName,
-                       String accountPhotoName, String accountPhotoNames,
-                       boolean complete) {
+    public Sponder(String phoneNumber, String emailAddress,
+                   String firstName, String surname, String displayName,
+                   String accountPhotoName, String accountPhotoNames,
+                   String status, long lastOnline,
+                   boolean complete, String token) {
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.firstName = firstName;
@@ -30,7 +35,11 @@ public class UserAccount {
         this.displayName = displayName;
         this.accountPhotoName = accountPhotoName;
         this.accountPhotoNames = accountPhotoNames;
+        this.status = status;
+        this.lastOnline = lastOnline;
+
         this.complete = complete;
+        this.token = token;
 
         //set any null values to equal ""
         removeNulls();
@@ -97,6 +106,8 @@ public class UserAccount {
         if (displayName == null) { displayName = ""; }
         if (accountPhotoName == null) { accountPhotoName = ""; }
         if (accountPhotoNames == null) { accountPhotoNames = ""; }
+        if (status == null) { status = ""; }
+        if (token == null) { token = ""; }
     }
 
     public String buildAccountPhotoNodeFilter(String u_Id, boolean appendFileName) {
@@ -127,5 +138,29 @@ public class UserAccount {
         }
         //re-assign updated comma-separated list to string
         accountPhotoNames = builder.toString();
+    }
+
+    public long getLastOnline() {
+        return lastOnline;
+    }
+
+    public void setLastOnline(long lastOnline) {
+        this.lastOnline = lastOnline;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

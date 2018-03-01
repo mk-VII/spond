@@ -9,6 +9,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_all_users"
+        android:title="@string/menu_all_users"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_account"
         android:title="@string/menu_account"
         app:showAsAction="never" />

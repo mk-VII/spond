@@ -6,6 +6,7 @@
     <string name="contacts_fragment">Contacts fragment</string>
 
     <string name="menu_sign_out">Sign out</string>
+    <string name="menu_all_users">All Sponders</string>
     <string name="menu_account">My account</string>
     <string name="action_settings">Settings</string>
 
@@ -29,5 +30,8 @@
     <!--api data-->
     <string name="facebook_app_id">782183328632077</string>
     <string name="fb_login_protocol_scheme">fb782183328632077</string>
+    <string name="title_activity_chat">ChatActivity</string>
+    <string name="status_default">Lick my fuckin\' slice, Roy</string>
+    <string name="displayName_default">spond User</string>
 
 </resources>

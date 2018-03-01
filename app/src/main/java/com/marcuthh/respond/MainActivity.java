@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Arrays;
 
@@ -49,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     //represents currently logged in user
     //full profile, not just registered user from mAuth
-    UserAccount appUser;
+    Sponder appUser;
 
     //Firebase objects
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mDbRef;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseListAdapter<ChatMessage> adapter;
+    private FirebaseListAdapter<Sponse> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         mAuthListener = createAuthListener();
 
         //test token value
-        Log.d(TAG, "Refreshed token: " + FirebaseInstanceId.getInstance().getToken());
+        //Log.d(TAG, "Refreshed token: " + FirebaseInstanceId.getInstance().getToken());
     }
 
     private FirebaseAuth.AuthStateListener createAuthListener() {
@@ -198,6 +196,12 @@ public class MainActivity extends AppCompatActivity {
                             finish();
                         }
                     });
+        } else if (mItem.getItemId() == R.id.menu_all_users) {
+            Intent spondersIntent = new Intent(
+                    MainActivity.this,
+                    SpondersActivity.class
+            );
+            startActivity(spondersIntent);
         } else if (mItem.getItemId() == R.id.menu_account) {
             Intent accountIntent = new Intent(
                     MainActivity.this,
@@ -277,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mAuth.getUid() != null && !mAuth.getUid().equals("")) {
                     DataSnapshot child = dataSnapshot.child(mAuth.getUid());
                     if (child != null) {
-                        UserAccount acc = child.getValue(UserAccount.class);
+                        Sponder acc = child.getValue(Sponder.class);
                         if (acc != null) {
                             String phoneNumber = acc.getPhoneNumber();
                             String emailAddress = acc.getEmailAddress();
@@ -287,11 +291,12 @@ public class MainActivity extends AppCompatActivity {
                             String photoName = acc.getAccountPhotoName();
                             String accountPhotoNames = acc.getAccountPhotoNames();
                             boolean isComplete = acc.isComplete();
+                            String token = acc.getToken();
 
-                            appUser = new UserAccount(
+                            appUser = new Sponder(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
-                                    photoName, accountPhotoNames, isComplete);
+                                    photoName, accountPhotoNames, "", 0, isComplete, token);
 
                             //get current user signed into app
                             //load first screen or redirect to login

@@ -1,6 +1,5 @@
 package com.marcuthh.respond;
 
-import android.*;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -18,7 +16,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -52,11 +49,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -105,7 +100,7 @@ public class AccountActivity extends AppCompatActivity {
     //account & updates//
     //full details for current signed in user
     //will be populated in onStart method - stored here to prevent another read before update to DB
-    UserAccount appUser;
+    Sponder appUser;
     //indicates whether account update has been successful, allows user to retry
     boolean updateSuccess;
     //tracks number of attempts to send email on change of email address
@@ -283,7 +278,7 @@ public class AccountActivity extends AppCompatActivity {
         btn_editPhoto.setOnClickListener(selectImageFromCameraOrGallery());
     }
 
-    private void updateDisplay(UserAccount accountData) {
+    private void updateDisplay(Sponder accountData) {
 
         //only enable image if all required information is provided
         btn_save.setEnabled(isValid());
@@ -308,7 +303,7 @@ public class AccountActivity extends AppCompatActivity {
         updateAccountPhotoDisplay(accountData);
     }
 
-    private void updateAccountPhotoDisplay(UserAccount accountData) {
+    private void updateAccountPhotoDisplay(Sponder accountData) {
         boolean useDefault = false;
 
         //new image added on page
@@ -342,7 +337,7 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private UserAccount getUserAccountFromControls(UserAccount accountData) {
+    private Sponder getUserAccountFromControls(Sponder accountData) {
         //name:
         //all entered into single field
         //last ' ' indicates split between first name and surname
@@ -692,7 +687,7 @@ public class AccountActivity extends AppCompatActivity {
                 if (mAuth.getUid() != null && !mAuth.getUid().equals("")) {
                     DataSnapshot child = dataSnapshot.child(mAuth.getUid());
                     if (child != null) {
-                        UserAccount acc = child.getValue(UserAccount.class);
+                        Sponder acc = child.getValue(Sponder.class);
                         if (acc != null) {
                             String phoneNumber = acc.getPhoneNumber();
                             String emailAddress = acc.getEmailAddress();
@@ -702,11 +697,12 @@ public class AccountActivity extends AppCompatActivity {
                             String photoName = acc.getAccountPhotoName();
                             String accountPhotoNames = acc.getAccountPhotoNames();
                             boolean isComplete = acc.isComplete();
+                            String token = acc.getToken();
 
-                            appUser = new UserAccount(
+                            appUser = new Sponder(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
-                                    photoName, accountPhotoNames, isComplete);
+                                    photoName, accountPhotoNames, "", 0, isComplete, token);
 
                             //get current user signed into app
                             //load first screen or redirect to login
