@@ -48,10 +48,10 @@ public class ChatActivity extends AppCompatActivity {
 
     private long spondenceId;
     private Spondence spondence;
+    private boolean isNewChat;
 
     FloatingActionButton btnSendMsg;
     EditText input;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,20 +70,35 @@ public class ChatActivity extends AppCompatActivity {
         //setup auth processes and callback behaviour
         mAuthListener = getAuthListener();
 
-        spondenceId = getIntent().getLongExtra("SPONDENCE_ID", 0);
-
-        btnSendMsg = (FloatingActionButton) findViewById(R.id.btnSendMsg);
-        btnSendMsg.setOnClickListener(sendChatMessage());
         input = (EditText) findViewById(R.id.input);
-        input.addTextChangedListener(onTextChanged());
+        btnSendMsg = (FloatingActionButton) findViewById(R.id.btnSendMsg);
+    }
 
-        displayChatMessages();
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+
+        //get account details for logged in user
+        mDbRefChats = mDatabase.getReference(TBL_CHATS);
+        mDbRefChats.addValueEventListener(onChatChangeListener());
+        mDbRefMessages = mDatabase.getReference(TBL_CHATMESSAGES);
+        mDbRefMessages.addValueEventListener(onMessagesChangeListener());
+
+        input.addTextChangedListener(onTextChanged());
+        btnSendMsg.setOnClickListener(sendChatMessage());
+
+        String existingChatId = getIntent().getStringExtra("CHAT_ID");
+        if (existingChatId != null && !existingChatId.equals("")) {
+            displayChatMessages();
+        }
     }
 
     private TextWatcher onTextChanged() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //...
             }
 
             @Override
@@ -97,7 +112,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                //...
             }
         };
     }
@@ -114,18 +129,6 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         };
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-
-        //get account details for logged in user
-        mDbRefChats = mDatabase.getReference(TBL_CHATS);
-        mDbRefChats.addValueEventListener(onChatChangeListener());
-        mDbRefMessages = mDatabase.getReference(TBL_CHATMESSAGES);
-        mDbRefMessages.addValueEventListener(onMessagesChangeListener());
     }
 
     private ValueEventListener onChatChangeListener() {

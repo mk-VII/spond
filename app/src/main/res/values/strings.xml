@@ -33,5 +33,7 @@
     <string name="title_activity_chat">ChatActivity</string>
     <string name="status_default">Lick my fuckin\' slice, Roy</string>
     <string name="displayName_default">spond User</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="prompt_message">Message</string>
 
 </resources>

@@ -37,7 +37,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:11.8.0'
 //    //facebook sdk
 //    implementation 'com.facebook.android:facebook-android-sdk:4.29.0'
+
+    //image compression library
+    implementation 'id.zelory:compressor:2.0.0'
 }
+
 
 
 

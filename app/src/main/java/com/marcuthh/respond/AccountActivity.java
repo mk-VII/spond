@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +57,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import id.zelory.compressor.Compressor;
 
 public class AccountActivity extends AppCompatActivity {
 
@@ -205,7 +208,10 @@ public class AccountActivity extends AppCompatActivity {
                 //update URI to store cropped image object
                 //flag and file name will already be set from camera or gallery selection
                 newAccountPhotoUri = data.getData();
-                Glide.with(getApplicationContext()).load(newAccountPhotoUri).into(img_account);
+                Glide.with(getApplicationContext())
+                        .load(newAccountPhotoUri)
+                        .placeholder(R.drawable.no_account_photo)
+                        .into(img_account);
             }
         }
     }
@@ -310,7 +316,10 @@ public class AccountActivity extends AppCompatActivity {
         if (appAccountPhotoChanged) {
             if (!(newAccountPhotoUri == null)) {
                 //use newly-added image that has not yet been committed to storage
-                Glide.with(getApplicationContext()).load(newAccountPhotoUri).into(img_account);
+                Glide.with(getApplicationContext())
+                        .load(newAccountPhotoUri)
+                        .placeholder(R.drawable.no_account_photo)
+                        .into(img_account);
             } else {
                 //previous photo removed
                 //use app default image
@@ -594,6 +603,8 @@ public class AccountActivity extends AppCompatActivity {
         String targetStoragePath = getUniqueStoragePath(newAccountPhotoFileName);
         //returns full path object and also updates value of parameter ^^
 
+        //TODO: some compression stuff here on image file
+
         StorageReference uploadRef = mStorageRef.child(targetStoragePath);
         uploadRef.putFile(newAccountPhotoUri)
                 .addOnCompleteListener(imageUploadedListener())
@@ -696,13 +707,16 @@ public class AccountActivity extends AppCompatActivity {
                             String displayName = acc.getDisplayName();
                             String photoName = acc.getAccountPhotoName();
                             String accountPhotoNames = acc.getAccountPhotoNames();
+                            String status = acc.getStatus();
+                            long lastOnline = acc.getLastOnline();
                             boolean isComplete = acc.isComplete();
                             String token = acc.getToken();
 
                             appUser = new Sponder(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
-                                    photoName, accountPhotoNames, "", 0, isComplete, token);
+                                    photoName, accountPhotoNames, status,
+                                    lastOnline, isComplete, token);
 
                             //get current user signed into app
                             //load first screen or redirect to login
@@ -959,7 +973,10 @@ public class AccountActivity extends AppCompatActivity {
         return new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri fileUri) {
-                Glide.with(getApplicationContext()).load(fileUri).into(img_account);
+                Glide.with(getApplicationContext())
+                        .load(fileUri)
+                        .placeholder(R.drawable.no_account_photo)
+                        .into(img_account);
             }
         };
     }
