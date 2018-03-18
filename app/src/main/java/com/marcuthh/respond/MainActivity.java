@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Arrays;
 
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 if (appUser == null) {
                     //get user data
                     mDbRef = mDatabase.getReference(TBL_USERS);
+                    mDbRef.keepSynced(true);
                     mDbRef.addValueEventListener(loadUserAccountFromDatabase());
                     //calls initialiseActivity() from inside method once user retrieved
                 } else {
@@ -132,27 +134,51 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 if (mAuth.getCurrentUser() != null) {
+
+                    String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                    mDbRef.child(mAuth.getUid())
+                            .child("token")
+                            .setValue(deviceToken)
+                            .addOnCompleteListener(loginCompleteListener());
+                } else {
                     Toast.makeText(this,
+                            "We couldn't sign you in. Please try again later.",
+                            Toast.LENGTH_LONG)
+                            .show();
+                    //close app - TODO: go to retry loop
+                    finish();
+                }
+            }
+        }
+    }
+
+    private OnCompleteListener<Void> loginCompleteListener() {
+        return new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    mSectionsPageAdapter =
+                            new SectionsPageAdapter(getSupportFragmentManager());
+                    mViewPager = (ViewPager) findViewById(R.id.container);
+                    setupViewPager(mViewPager);
+
+                    TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+                    tabLayout.setupWithViewPager(mViewPager);
+
+                    Toast.makeText(getApplicationContext(),
                             "Successfully signed in. Welcome, " +
                                     mAuth.getCurrentUser().getDisplayName(),
                             Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "We couldn't sign you in. Please try again later.",
+                            Toast.LENGTH_LONG)
+                            .show();
+                    //close app - TODO: go to retry loop
+                    finish();
                 }
-                mSectionsPageAdapter =
-                        new SectionsPageAdapter(getSupportFragmentManager());
-                mViewPager = (ViewPager) findViewById(R.id.container);
-                setupViewPager(mViewPager);
-
-                TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-                tabLayout.setupWithViewPager(mViewPager);
-            } else {
-                Toast.makeText(this,
-                        "We couldn't sign you in. Please try again later.",
-                        Toast.LENGTH_LONG)
-                        .show();
-                //close app - TODO: go to retry loop
-                finish();
             }
-        }
+        };
     }
 
     @Override
@@ -163,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         if (mDbRef == null) {
             //get account details for logged in user
             mDbRef = mDatabase.getReference(TBL_USERS);
+            mDbRef.keepSynced(true);
             mDbRef.addValueEventListener(loadUserAccountFromDatabase());
         }
     }
@@ -213,7 +240,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
 
         ContactsFragment fragContacts =
                 (ContactsFragment) mSectionsPageAdapter.getFragmentByTag("ContactsFragment");

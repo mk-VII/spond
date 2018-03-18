@@ -81,8 +81,10 @@ public class ChatActivity extends AppCompatActivity {
 
         //get account details for logged in user
         mDbRefChats = mDatabase.getReference(TBL_CHATS);
+        mDbRefChats.keepSynced(true);
         mDbRefChats.addValueEventListener(onChatChangeListener());
         mDbRefMessages = mDatabase.getReference(TBL_CHATMESSAGES);
+        mDbRefMessages.keepSynced(true);
         mDbRefMessages.addValueEventListener(onMessagesChangeListener());
 
         input.addTextChangedListener(onTextChanged());

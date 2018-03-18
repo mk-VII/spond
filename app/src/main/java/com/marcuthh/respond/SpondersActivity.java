@@ -41,6 +41,7 @@ public class SpondersActivity extends AppCompatActivity {
         sponder_list.setLayoutManager(new LinearLayoutManager(this));
 
         mDbRefUsers = FirebaseDatabase.getInstance().getReference(CHILD_USERS);
+        mDbRefUsers.keepSynced(true);
     }
 
     @Override

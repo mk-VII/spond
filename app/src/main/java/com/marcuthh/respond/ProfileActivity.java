@@ -68,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
         profile_msg_btn = (Button) findViewById(R.id.profile_msg_btn);
 
         mDbRefUser = FirebaseDatabase.getInstance().getReference(CHILD_USERS);
+        mDbRefUser.keepSynced(true);
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
@@ -92,6 +93,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final DatabaseReference dbRefChats =
                         FirebaseDatabase.getInstance().getReference(CHILD_CHATS);
+                dbRefChats.keepSynced(true);
                 dbRefChats.addValueEventListener(onChatDataChange(dbRefChats));
             }
         };

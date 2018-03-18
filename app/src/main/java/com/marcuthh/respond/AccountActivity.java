@@ -157,6 +157,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //get account details for logged in user
         mDbRef = mDatabase.getReference(TBL_USERS);
+        mDbRef.keepSynced(true);
         mDbRef.addValueEventListener(onDataChangeListener());
     }
 
