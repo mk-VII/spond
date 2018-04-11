@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">spond</string>
+    <string name="app_name">HeadCount</string>
 
     <string name="chats_fragment">Chats fragment</string>
     <string name="invites_fragment">Invites fragment</string>
     <string name="contacts_fragment">Contacts fragment</string>
 
     <string name="menu_sign_out">Sign out</string>
-    <string name="menu_all_users">All Sponders</string>
+    <string name="menu_all_users">All Users</string>
     <string name="menu_account">My account</string>
     <string name="action_settings">Settings</string>
 
@@ -31,8 +31,8 @@
     <string name="facebook_app_id">782183328632077</string>
     <string name="fb_login_protocol_scheme">fb782183328632077</string>
     <string name="title_activity_chat">ChatActivity</string>
-    <string name="status_default">Lick my fuckin\' slice, Roy</string>
-    <string name="displayName_default">spond User</string>
+    <string name="status_default">default user status</string>
+    <string name="displayName_default">HeadCount User</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="prompt_message">Message</string>
 

@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -58,8 +57,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import id.zelory.compressor.Compressor;
-
 public class AccountActivity extends AppCompatActivity {
 
     //region //Global Declarations
@@ -82,6 +79,7 @@ public class AccountActivity extends AppCompatActivity {
     //Firebase components
     private FirebaseAnalytics mFirebaseAnalytics;
     private FirebaseAuth mAuth;
+    private FirebaseUser mAuthUser;
     private FirebaseDatabase mDatabase;
     private DatabaseReference mDbRef;
     //file transfer to database
@@ -103,7 +101,7 @@ public class AccountActivity extends AppCompatActivity {
     //account & updates//
     //full details for current signed in user
     //will be populated in onStart method - stored here to prevent another read before update to DB
-    Sponder appUser;
+    User appUser;
     //indicates whether account update has been successful, allows user to retry
     boolean updateSuccess;
     //tracks number of attempts to send email on change of email address
@@ -130,6 +128,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //get Firebase connections
         mAuth = FirebaseAuth.getInstance();
+        mAuthUser = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -194,7 +193,7 @@ public class AccountActivity extends AppCompatActivity {
                     if (!newAccountPhotoFileName.equals("")) {
                         appAccountPhotoChanged = true;
                         //send image to be cropped
-                        cropImage(newAccountPhotoUri);
+                        //cropImage(newAccountPhotoUri);
                     }
                 }
             } else if (requestCode == SELECT_FILE) {
@@ -203,7 +202,11 @@ public class AccountActivity extends AppCompatActivity {
                 if (!newAccountPhotoFileName.equals("")) {
                     appAccountPhotoChanged = true;
                     //send image to be cropped
-                    cropImage(newAccountPhotoUri);
+                    //cropImage(newAccountPhotoUri);
+                    Glide.with(getApplicationContext())
+                            .load(newAccountPhotoUri)
+                            .placeholder(R.drawable.no_account_photo)
+                            .into(img_account);
                 }
             } else if (requestCode == REQUEST_CROP) {
                 //update URI to store cropped image object
@@ -223,9 +226,8 @@ public class AccountActivity extends AppCompatActivity {
         return new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
-                FirebaseUser regUser = mAuth.getCurrentUser();
-                if (regUser != null) {
-                    regUser.updatePhoneNumber(credential)
+                if (mAuthUser != null) {
+                    mAuthUser.updatePhoneNumber(credential)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -285,10 +287,7 @@ public class AccountActivity extends AppCompatActivity {
         btn_editPhoto.setOnClickListener(selectImageFromCameraOrGallery());
     }
 
-    private void updateDisplay(Sponder accountData) {
-
-        //only enable image if all required information is provided
-        btn_save.setEnabled(isValid());
+    private void updateDisplay(User accountData) {
 
         //get user's name from account fields or registration
         String fullName = buildAccountName(accountData.getFirstName(),
@@ -307,10 +306,13 @@ public class AccountActivity extends AppCompatActivity {
         etxt_phone.setText(accountData.getPhoneNumber());
         etxt_email.setText(accountData.getEmailAddress());
 
+        //only enable image if all required information is provided
+        btn_save.setEnabled(isValid());
+
         updateAccountPhotoDisplay(accountData);
     }
 
-    private void updateAccountPhotoDisplay(Sponder accountData) {
+    private void updateAccountPhotoDisplay(User accountData) {
         boolean useDefault = false;
 
         //new image added on page
@@ -326,14 +328,16 @@ public class AccountActivity extends AppCompatActivity {
                 //use app default image
                 useDefault = true;
             }
-        } else {
+        }
+        else {
             if (!accountData.usesDefaultPhoto()) {
                 //load associated account photo from storage
                 mStorageRef.child(
-                        accountData.buildAccountPhotoNodeFilter(mAuth.getUid(), true))
-                        .getDownloadUrl()
-                        .addOnSuccessListener(fileFoundListener())
-                        .addOnFailureListener(fileNotFoundListener());
+                        //the path in firebase storage for this user id and filename
+                        accountData.buildAccountPhotoNodeFilter(mAuthUser.getUid(), true))
+                        .getDownloadUrl() //end url of the file
+                        .addOnSuccessListener(fileFoundListener()) //loads image into imageview
+                        .addOnFailureListener(fileNotFoundListener()); //flags to default image
             } else {
                 //previous photo removed
                 //use app default image
@@ -347,7 +351,7 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private Sponder getUserAccountFromControls(Sponder accountData) {
+    private User getUserAccountFromControls(User accountData) {
         //name:
         //all entered into single field
         //last ' ' indicates split between first name and surname
@@ -552,7 +556,7 @@ public class AccountActivity extends AppCompatActivity {
         //unique file name created
         //create target path for file storage using user's path and file name
         return appUser.buildAccountPhotoNodeFilter(
-                mAuth.getUid(),
+                mAuthUser.getUid(),
                 false
         ) + "/" + copyNumberFileName;
     }
@@ -593,7 +597,6 @@ public class AccountActivity extends AppCompatActivity {
 
     //methods to update user data in firebase//
     private void writeAccountPhotoToStorage() {
-
         //update associated account photo first
         //so profile object can be updated with correct filename
         //includes case where filename has to be updated to avoid duplicates
@@ -604,17 +607,16 @@ public class AccountActivity extends AppCompatActivity {
         String targetStoragePath = getUniqueStoragePath(newAccountPhotoFileName);
         //returns full path object and also updates value of parameter ^^
 
-        //TODO: some compression stuff here on image file
-
+        //reference to Firebase File Storage at this path
         StorageReference uploadRef = mStorageRef.child(targetStoragePath);
-        uploadRef.putFile(newAccountPhotoUri)
+        uploadRef.putFile(newAccountPhotoUri) //attempt to write file to reference
                 .addOnCompleteListener(imageUploadedListener())
                 .addOnFailureListener(imageUploadFailedListener());
     }
 
     private void writeUserAccountToDB() {
-        if (mAuth.getUid() != null) {
-            mDbRef.child(mAuth.getUid()).setValue(appUser)
+        if (mAuthUser.getUid() != null) {
+            mDbRef.child(mAuthUser.getUid()).setValue(appUser)
                     .addOnFailureListener(accountUpdateFailedListener());
         }
     }
@@ -696,10 +698,10 @@ public class AccountActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (mAuth.getUid() != null && !mAuth.getUid().equals("")) {
-                    DataSnapshot child = dataSnapshot.child(mAuth.getUid());
+                if (mAuthUser.getUid() != null && !mAuthUser.getUid().equals("")) {
+                    DataSnapshot child = dataSnapshot.child(mAuthUser.getUid());
                     if (child != null) {
-                        Sponder acc = child.getValue(Sponder.class);
+                        User acc = child.getValue(User.class);
                         if (acc != null) {
                             String phoneNumber = acc.getPhoneNumber();
                             String emailAddress = acc.getEmailAddress();
@@ -713,7 +715,7 @@ public class AccountActivity extends AppCompatActivity {
                             boolean isComplete = acc.isComplete();
                             String token = acc.getToken();
 
-                            appUser = new Sponder(
+                            appUser = new User(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
                                     photoName, accountPhotoNames, status,
@@ -942,7 +944,7 @@ public class AccountActivity extends AppCompatActivity {
                 if (isValid()) {
                     appUser = getUserAccountFromControls(appUser);
 
-                    if (mAuth != null && mAuth.getUid() != null) {
+                    if (mAuth != null && mAuthUser.getUid() != null) {
                         //flagged as true until an error occurs
                         //any error will set as false
                         updateSuccess = true;

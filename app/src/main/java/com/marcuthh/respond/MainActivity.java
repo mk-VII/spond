@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     //represents currently logged in user
     //full profile, not just registered user from mAuth
-    Sponder appUser;
+    User appUser;
 
     //Firebase objects
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mDbRef;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseListAdapter<Sponse> adapter;
+    private FirebaseListAdapter<Message> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
                     mDbRef.child(mAuth.getUid())
                             .child("token")
                             .setValue(deviceToken)
+                            //loads welcome screen in callback function
+                            //once database request completed
                             .addOnCompleteListener(loginCompleteListener());
                 } else {
                     Toast.makeText(this,
@@ -226,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (mItem.getItemId() == R.id.menu_all_users) {
             Intent spondersIntent = new Intent(
                     MainActivity.this,
-                    SpondersActivity.class
+                    UsersActivity.class
             );
             startActivity(spondersIntent);
         } else if (mItem.getItemId() == R.id.menu_account) {
@@ -309,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mAuth.getUid() != null && !mAuth.getUid().equals("")) {
                     DataSnapshot child = dataSnapshot.child(mAuth.getUid());
                     if (child != null) {
-                        Sponder acc = child.getValue(Sponder.class);
+                        User acc = child.getValue(User.class);
                         if (acc != null) {
                             String phoneNumber = acc.getPhoneNumber();
                             String emailAddress = acc.getEmailAddress();
@@ -321,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                             boolean isComplete = acc.isComplete();
                             String token = acc.getToken();
 
-                            appUser = new Sponder(
+                            appUser = new User(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
                                     photoName, accountPhotoNames, "", 0, isComplete, token);

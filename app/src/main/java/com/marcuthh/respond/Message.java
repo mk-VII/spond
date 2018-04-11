@@ -2,14 +2,14 @@ package com.marcuthh.respond;
 
 import java.util.Date;
 
-public class Sponse {
+public class Message {
 
     private String messageText;
     private String messageSender;
     private boolean messageViewed;
     private long messageTime;
 
-    public Sponse(String msgText, String msgSender) {
+    public Message(String msgText, String msgSender) {
         messageText = msgText;
         messageSender = msgSender;
         messageViewed = false;
@@ -17,7 +17,7 @@ public class Sponse {
         messageTime = new Date().getTime();
     }
 
-    public Sponse() {
+    public Message() {
     }
 
     public String getMessageText() {

@@ -13,7 +13,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class SpondFirebaseMessagingService extends FirebaseMessagingService {
+public class HCFirebaseMessagingService extends FirebaseMessagingService {
 
     public static final String TAG = "SpondListeningService";
 

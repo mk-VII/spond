@@ -4,15 +4,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,7 +44,7 @@ public class ChatActivity extends AppCompatActivity {
     //Firebase components
 
     private long spondenceId;
-    private Spondence spondence;
+    private Conversation conversation;
     private boolean isNewChat;
 
     FloatingActionButton btnSendMsg;
@@ -140,13 +137,13 @@ public class ChatActivity extends AppCompatActivity {
                 if (spondenceId > 0) {
                     DataSnapshot childChat = dataSnapshot.child(Long.toString(spondenceId));
                     if (childChat != null) {
-                        Spondence chat = childChat.getValue(Spondence.class);
+                        Conversation chat = childChat.getValue(Conversation.class);
                         if (chat != null) {
                             String name = chat.getName();
-                            Sponder[] sponders = chat.getSponders();
-                            Sponse[] sponses = chat.getSponses();
+                            User[] users = chat.getUsers();
+                            Message[] sponses = chat.getMessages();
 
-                            spondence = new Spondence(name, sponders, sponses);
+                            conversation = new Conversation(name, users, sponses);
                         }
                     }
                 }

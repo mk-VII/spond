@@ -3,10 +3,7 @@ package com.marcuthh.respond;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.service.autofill.Dataset;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawableResource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,9 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -49,7 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference mDbRefUser;
     private FirebaseUser mCurrentUser;
 
-    private Sponder profileUser;
+    private User profileUser;
     private String uid;
     //endregion
 
@@ -170,7 +163,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
-                    profileUser = dataSnapshot.getValue(Sponder.class);
+                    profileUser = dataSnapshot.getValue(User.class);
                     if (profileUser != null) {
                         updateProfileDisplay(profileUser);
                     }
@@ -184,7 +177,7 @@ public class ProfileActivity extends AppCompatActivity {
         };
     }
 
-    private void updateProfileDisplay(Sponder accountData) {
+    private void updateProfileDisplay(User accountData) {
         String displayName = accountData.getDisplayName();
         String fullName = buildAccountName(accountData.getFirstName(), accountData.getSurname());
 
@@ -203,7 +196,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             if (fullName != null && !fullName.equals("")) {
                 profile_displayName.setText(fullName);
-            } //otherwise will default to "Spond User"
+            } //otherwise will default to "HeadCount User"
         }
 
         String status = accountData.getStatus();

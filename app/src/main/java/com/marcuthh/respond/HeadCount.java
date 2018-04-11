@@ -5,7 +5,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class Spond extends Application {
+public class HeadCount extends Application {
 
     @Override
     public void onCreate() {

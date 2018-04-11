@@ -3,7 +3,7 @@ package com.marcuthh.respond;
 import java.io.File;
 import java.util.ArrayList;
 
-public class Sponder {
+public class User {
 
     private String phoneNumber;
     private String emailAddress;
@@ -21,13 +21,13 @@ public class Sponder {
     //token set on initial registration
     private String token;
 
-    public Sponder() {}
+    public User() {}
 
-    public Sponder(String phoneNumber, String emailAddress,
-                   String firstName, String surname, String displayName,
-                   String accountPhotoName, String accountPhotoNames,
-                   String status, long lastOnline,
-                   boolean complete, String token) {
+    public User(String phoneNumber, String emailAddress,
+                String firstName, String surname, String displayName,
+                String accountPhotoName, String accountPhotoNames,
+                String status, long lastOnline,
+                boolean complete, String token) {
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.firstName = firstName;
@@ -112,8 +112,10 @@ public class Sponder {
 
     public String buildAccountPhotoNodeFilter(String u_Id, boolean appendFileName) {
         if (!u_Id.equals("")) {
+            //path to folder of account photos
             String filterString = "images/users/" + u_Id + "/account_photos";
             if (appendFileName) {
+                //path to individual file within folder
                 filterString += File.separator + accountPhotoName;
             }
             return filterString;
