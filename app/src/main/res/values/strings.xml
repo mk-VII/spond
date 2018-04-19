@@ -24,6 +24,8 @@
     <string name="account_clear_photo">Remove photo</string>
     <string name="account_edit_photo">Change photo</string>
 
+    <string name="title_activity_users">User Connect</string>
+
     <!--providers & authorities-->
     <string name="authorities_fileprovider">.fileprovider</string>
 
@@ -35,5 +37,7 @@
     <string name="displayName_default">HeadCount User</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="prompt_message">Message</string>
+    <string name="search_title">Search user by display name, phone or email</string>
+    <string name="search_users_hint">search users...</string>
 
 </resources>

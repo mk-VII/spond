@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mAuth.getCurrentUser() != null) {
 
                     String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                    mDbRef.child(mAuth.getUid())
+                    mDbRef.child(mAuth.getCurrentUser().getUid())
                             .child("token")
                             .setValue(deviceToken)
                             //loads welcome screen in callback function
@@ -308,8 +308,8 @@ public class MainActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (mAuth.getUid() != null && !mAuth.getUid().equals("")) {
-                    DataSnapshot child = dataSnapshot.child(mAuth.getUid());
+                if (mAuth.getCurrentUser().getUid() != null && !mAuth.getCurrentUser().getUid().equals("")) {
+                    DataSnapshot child = dataSnapshot.child(mAuth.getCurrentUser().getUid());
                     if (child != null) {
                         User acc = child.getValue(User.class);
                         if (acc != null) {
@@ -326,7 +326,8 @@ public class MainActivity extends AppCompatActivity {
                             appUser = new User(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
-                                    photoName, accountPhotoNames, "", 0, isComplete, token);
+                                    photoName, accountPhotoNames, "",
+                                    0, false, isComplete, token);
 
                             //get current user signed into app
                             //load first screen or redirect to login

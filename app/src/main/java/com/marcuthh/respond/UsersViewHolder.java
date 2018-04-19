@@ -18,6 +18,7 @@ public class UsersViewHolder extends RecyclerView.ViewHolder {
 
         view = itemView;
     }
+
     public void setDisplayName(String displayName) {
         if (displayName != null && !displayName.equals("")) {
             TextView user_displayName = (TextView) view.findViewById(R.id.user_displayName);

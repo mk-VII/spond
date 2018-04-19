@@ -14,6 +14,7 @@ public class User {
     private String accountPhotoNames;
     private String status;
     private long lastOnline;
+    private boolean privateProfile;
 
     //flag to set up full account details after registration
     //always begins as false
@@ -26,7 +27,7 @@ public class User {
     public User(String phoneNumber, String emailAddress,
                 String firstName, String surname, String displayName,
                 String accountPhotoName, String accountPhotoNames,
-                String status, long lastOnline,
+                String status, long lastOnline, boolean isPrivate,
                 boolean complete, String token) {
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
@@ -37,6 +38,7 @@ public class User {
         this.accountPhotoNames = accountPhotoNames;
         this.status = status;
         this.lastOnline = lastOnline;
+        this.privateProfile = isPrivate;
 
         this.complete = complete;
         this.token = token;
@@ -164,5 +166,13 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isPrivateProfile() {
+        return privateProfile;
+    }
+
+    public void setPrivateProfile(boolean privateProfile) {
+        this.privateProfile = privateProfile;
     }
 }

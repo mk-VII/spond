@@ -712,6 +712,7 @@ public class AccountActivity extends AppCompatActivity {
                             String accountPhotoNames = acc.getAccountPhotoNames();
                             String status = acc.getStatus();
                             long lastOnline = acc.getLastOnline();
+                            boolean isPrivate = acc.isPrivateProfile();
                             boolean isComplete = acc.isComplete();
                             String token = acc.getToken();
 
@@ -719,7 +720,7 @@ public class AccountActivity extends AppCompatActivity {
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
                                     photoName, accountPhotoNames, status,
-                                    lastOnline, isComplete, token);
+                                    lastOnline, isPrivate, isComplete, token);
 
                             //get current user signed into app
                             //load first screen or redirect to login

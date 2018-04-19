@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- PERMISSIONS -->
@@ -21,13 +20,13 @@
 
     <!-- HARDWARE USED -->
     <application
+        android:name=".HeadCount"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".HeadCount">
+        android:theme="@style/AppTheme">
 
         <!-- <meta-data -->
         <!-- android:name="com.facebook.sdk.ApplicationId" -->
@@ -45,6 +44,7 @@
         <activity
             android:name=".AccountActivity"
             android:label="@string/title_activity_account"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".HCFirebaseMessagingService">
@@ -71,12 +71,25 @@
         <activity
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".UsersActivity" />
+        <activity
+            android:name=".UsersActivity"
+            android:label="@string/title_activity_users"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/users_searchable"
+                />
+            </activity>
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:parentActivityName=".UsersActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
