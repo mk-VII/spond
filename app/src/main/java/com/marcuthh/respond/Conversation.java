@@ -3,34 +3,24 @@ package com.marcuthh.respond;
 //Chat module
 public class Conversation {
 
-    private String name;
-    private User[] users;
+    private String[] userKeys;
     private Message[] messages;
-    private long lastResponded;
+    private long lastMessaged;
 
     public Conversation() {
     }
 
-    public Conversation(String spName, User[] members, Message[] mess) {
-        name = spName;
-        users = members;
+    public Conversation(String[] keys, Message[] mess) {
+        userKeys = keys;
         messages = mess;
     }
 
-    public String getName() {
-        return name;
+    public String[] getUsers() {
+        return userKeys;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public User[] getUsers() {
-        return users;
-    }
-
-    public void setUsers(User[] users) {
-        this.users = users;
+    public void setUsers(String[] keys) {
+        this.userKeys = keys;
     }
 
     public Message[] getMessages() {

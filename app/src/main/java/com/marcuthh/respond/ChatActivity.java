@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.support.v7.widget.Toolbar;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,14 +24,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
+    //region ////GLOBALS////
+    ////CONSTANTS////
     private static final String TAG = "ChatActivity";
     private static final String TBL_CHATS = "chats";
     private static final String TBL_CHATMESSAGES = "chatmessages";
+    ////CONSTANTS////
 
     //Firebase components
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -43,17 +49,24 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     //Firebase components
 
-    private long spondenceId;
+    private String chatId;
     private Conversation conversation;
     private boolean isNewChat;
 
     FloatingActionButton btnSendMsg;
     EditText input;
+    Toolbar toolbar;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //get Firebase connections
         mAuth = FirebaseAuth.getInstance();
@@ -76,6 +89,8 @@ public class ChatActivity extends AppCompatActivity {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
 
+        chatId = getIntent().getStringExtra("CHAT_ID");
+
         //get account details for logged in user
         mDbRefChats = mDatabase.getReference(TBL_CHATS);
         mDbRefChats.keepSynced(true);
@@ -87,10 +102,22 @@ public class ChatActivity extends AppCompatActivity {
         input.addTextChangedListener(onTextChanged());
         btnSendMsg.setOnClickListener(sendChatMessage());
 
-        String existingChatId = getIntent().getStringExtra("CHAT_ID");
-        if (existingChatId != null && !existingChatId.equals("")) {
+        if (chatId != null && !chatId.equals("")) {
             displayChatMessages();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mAuth.removeAuthStateListener(mAuthListener);
     }
 
     private TextWatcher onTextChanged() {
@@ -134,17 +161,31 @@ public class ChatActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (spondenceId > 0) {
-                    DataSnapshot childChat = dataSnapshot.child(Long.toString(spondenceId));
+                if (chatId != null && !chatId.equals("")) {
+                    DataSnapshot childChat = dataSnapshot.child(chatId);
                     if (childChat != null) {
-                        Conversation chat = childChat.getValue(Conversation.class);
-                        if (chat != null) {
-                            String name = chat.getName();
-                            User[] users = chat.getUsers();
-                            Message[] sponses = chat.getMessages();
+                        ArrayList<String> userKeys = new ArrayList<String>();
+                        ArrayList<Message> messages = new ArrayList<Message>();
 
-                            conversation = new Conversation(name, users, sponses);
+                        for (DataSnapshot chatUser : childChat.child("sponders").getChildren()) {
+                            userKeys.add(chatUser.getKey());
                         }
+
+                        for (DataSnapshot chatMessage : childChat.child("messages").getChildren()) {
+                            messages.add(chatMessage.getValue(Message.class));
+                        }
+
+                        conversation = new Conversation(
+                                userKeys.toArray(new String[userKeys.size()]),
+                                messages.toArray(new Message[messages.size()])
+                        );
+
+                        String userChatLabel = childChat
+                                .child("sponders")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .child("chatLabel")
+                                .getValue(String.class);
+                        getSupportActionBar().setTitle(userChatLabel);
                     }
                 }
             }
@@ -160,8 +201,8 @@ public class ChatActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (spondenceId > 0) {
-                    mDbRefMessages.orderByChild("spondenceId").equalTo(Long.toString(spondenceId));
+                if (chatId != null && !chatId.equals("")) {
+                    mDbRefMessages.orderByChild("chatId").equalTo(chatId);
                 }
             }
 
@@ -170,12 +211,6 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         };
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mAuth.removeAuthStateListener(mAuthListener);
     }
 
     private ValueEventListener onDataChangeListener() {
@@ -200,20 +235,19 @@ public class ChatActivity extends AppCompatActivity {
                 EditText input = (EditText) findViewById(R.id.input);
 
                 String sender = mAuth.getCurrentUser().getUid();
-                String messageChatRef = TBL_CHATMESSAGES + "/" + spondenceId;
-                String pushId = mDbRefMessages
-                        .child(Long.toString(spondenceId))
-                        .push().getKey();
+                String senderMessagesPath = "chats/" + chatId + "/" + TBL_CHATMESSAGES + "/" + sender;
+                DatabaseReference dbRefChatMessages =
+                        FirebaseDatabase.getInstance(senderMessagesPath).getReference();
+                String pushId = dbRefChatMessages.push().getKey();
 
                 final Map<String, String> timeStamp = ServerValue.TIMESTAMP;
                 Map<String, Object> messageMap = new HashMap<String, Object>();
                 messageMap.put("text", input.getText().toString());
-                messageMap.put("sender", sender);
                 messageMap.put("viewed", false);
                 messageMap.put("time", timeStamp);
 
                 Map<String, Object> messageChatMap = new HashMap<String, Object>();
-                messageChatMap.put(messageChatRef + "/" + pushId, messageMap);
+                messageChatMap.put(senderMessagesPath + "/" + pushId, messageMap);
 
                 mDbRefMessages.updateChildren(messageChatMap, new DatabaseReference.CompletionListener() {
                     @Override
@@ -221,8 +255,8 @@ public class ChatActivity extends AppCompatActivity {
                         if (databaseError != null) {
                             Log.d(TAG, databaseError.getMessage());
                         } else {
-                            mDbRefChats.child(Long.toString(spondenceId))
-                                    .child("lastSponded").setValue(timeStamp);
+                            mDbRefChats.child(chatId)
+                                    .child("lastMessaged").setValue(timeStamp);
                         }
                     }
                 });

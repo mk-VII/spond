@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -42,8 +43,10 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference mDbRefUser;
     private FirebaseUser mCurrentUser;
 
+    //the whole record of the user being viewed by the logged-in user
     private User profileUser;
-    private String uid;
+    //the firebase id of the profile
+    private String profileUid;
     //endregion
 
     @Override
@@ -69,12 +72,12 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        uid = getIntent().getStringExtra("USER_ID");
+        profileUid = getIntent().getStringExtra("USER_ID");
 
         profile_msg_btn.setOnClickListener(onChatButtonClick());
 
-        if (uid != null && !uid.equals("")) {
-            mDbRefUser.child(uid).addValueEventListener(onUserDataChange());
+        if (profileUid != null && !profileUid.equals("")) {
+            mDbRefUser.child(profileUid).addValueEventListener(onUserDataChange());
         } else {
             Log.d(TAG, "error: no user id found");
         }
@@ -101,7 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
                 String chatKey = getChatKeyForUsers(
                         dataSnapshot,
                         new String[]{
-                                uid,
+                                profileUid,
                                 mCurrentUser.getUid()
                         }
                 );
@@ -116,7 +119,7 @@ public class ProfileActivity extends AppCompatActivity {
                     chatIntent.putExtra("CHAT_ID", chatKey);
                 } else {
                     //no chat found between the two users
-                    chatIntent.putExtra("RECIPIENT_ID", uid);
+                    chatIntent.putExtra("RECIPIENT_ID", profileUid);
                     //push key for new chat - save another execution of the query in chat activity
                     chatIntent.putExtra("NEW_CHAT_ID", ref.push().getKey());
                 }
@@ -140,22 +143,28 @@ public class ProfileActivity extends AppCompatActivity {
         ArrayList<String> sponderKeys = new ArrayList<String>();
 
         for (DataSnapshot chat : dataSnapshot.getChildren()) {
-            if (chat.child("sponders").getChildrenCount() == 2) {
+            DataSnapshot chatMembersRef = chat.child("sponders");
+            if (isIndividualChat(chatMembersRef.getChildrenCount())) {
                 //loop through contacts in chat record
-                for (DataSnapshot chatSponder : chat.getChildren()) {
+                for (DataSnapshot chatSponder : chatMembersRef.getChildren()) {
                     sponderKeys.add(chatSponder.getKey());
                 }
+            }
 
-                if (sponderKeys.containsAll(searchKeys)) {
-                    return chat.getKey();
-                } else {
-                    sponderKeys.clear();
-                }
+            if (sponderKeys.containsAll(searchKeys)) {
+                //key is found for chat between logged in user and profile user
+                return chat.getKey();
+            } else {
+                sponderKeys.clear();
             }
         }
 
         //blank string indicating no chat history exists
         return "";
+    }
+
+    private boolean isIndividualChat(long childrenCount) {
+        return childrenCount == 2;
     }
 
     private ValueEventListener onUserDataChange() {
@@ -209,12 +218,19 @@ public class ProfileActivity extends AppCompatActivity {
             //calculate the path to user's profile picture
             FirebaseStorage.getInstance().getReference(
                     accountData.buildAccountPhotoNodeFilter(
-                            uid,
+                            profileUid,
                             true
                     )
             ).getDownloadUrl()
                     .addOnCompleteListener(imageLoadedListener());
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
     }
 
     private OnCompleteListener<Uri> imageLoadedListener() {

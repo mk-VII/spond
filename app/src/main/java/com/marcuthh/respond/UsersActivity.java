@@ -143,10 +143,8 @@ public class UsersActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String searchText = intent.getStringExtra(SearchManager.QUERY);
 
-
-
             //filter users by query criteria
-            if (searchText != null && !searchText.equals("")) {
+            if (!searchText.equals("")) {
                 //some search criteria
                 //display users
                 Query displayNameQuery = mDbRefUsers
