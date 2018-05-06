@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_border_bottom_grey">
+
+    <ImageView
+        android:id="@+id/user_image"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/no_account_photo" />
+
+    <TextView
+        android:id="@+id/user_displayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/user_image"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@+id/user_image"
+        android:text="@string/displayName_default"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/user_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/user_displayName"
+        android:layout_below="@+id/user_displayName"
+        android:layout_marginTop="10dp"
+        android:text="@string/status_default"
+        android:textColor="@color/colorAccent" />
+
+    <ImageView
+        android:id="@+id/user_online"
+        android:layout_width="8dp"
+        android:layout_height="18dp"
+        android:layout_alignTop="@+id/user_status"
+        android:layout_marginLeft="10dp"
+        android:layout_toEndOf="@+id/user_status"
+        android:visibility="visible"
+        app:srcCompat="@drawable/online_icon" />
+
+</RelativeLayout>
