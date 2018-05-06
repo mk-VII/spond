@@ -6,7 +6,7 @@
     android:background="@drawable/background_border_bottom_grey">
 
     <ImageView
-        android:id="@+id/chat_image"
+        android:id="@+id/event_image"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginBottom="15dp"
@@ -14,34 +14,67 @@
         android:layout_marginTop="15dp"
         android:src="@drawable/no_account_photo" />
 
-    <TextView
-        android:id="@+id/chat_label"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/chat_image"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="15dp">
+
+        <Switch
+            android:id="@+id/swch_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="15dp"
+            android:clickable="true" />
+
+        <TextView
+            android:id="@+id/txt_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/swch_event_attending"
+            android:text="@string/event_not_attending"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal|bold" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/event_image"
         android:layout_marginStart="20dp"
-        android:layout_toEndOf="@+id/chat_image"
-        android:text="@string/chat_label"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="18sp" />
+        android:layout_toEndOf="@+id/event_image">
 
-    <TextView
-        android:id="@+id/chat_last_contacted_by"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/chat_label"
-        android:layout_below="@+id/chat_label"
-        android:layout_marginTop="10dp"
-        android:text="@string/chat_last_contacted_by"
-        android:textColor="@color/colorPrimary" />
+        <TextView
+            android:id="@+id/event_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/chat_last_contacted_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/chat_last_contacted_by"
-        android:layout_marginStart="10dp"
-        android:layout_toEndOf="@+id/chat_last_contacted_by"
-        android:text="@string/chat_last_contacted_time"
-        android:textColor="@color/colorAccent"/>
+        <TextView
+            android:id="@+id/event_invited_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/event_title"
+            android:layout_below="@+id/event_title"
+            android:layout_marginTop="10dp"
+            android:text="invited by User"
+            android:textColor="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/event_num_attnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/event_invited_by"
+            android:layout_below="@+id/event_invited_by"
+            android:text="(10 attending)"
+            android:textColor="@color/colorAccent" />
+    </RelativeLayout>
+
 </RelativeLayout>

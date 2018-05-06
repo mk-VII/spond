@@ -4,40 +4,26 @@
     android:layout_height="wrap_content"
     android:background="@drawable/background_border_bottom_grey"
     android:paddingHorizontal="@dimen/activity_horizontal_margin"
-    android:paddingVertical="@dimen/activity_vertical_margin"
-    >
+    android:paddingVertical="@dimen/activity_vertical_margin">
 
-    <TextView
-        android:id="@+id/message_user"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:text="User"
-        android:textColor="@color/colorAccent"
-        android:textStyle="normal|bold" />
+    <include
+        layout="@layout/content_message"
+        android:id="@+id/content_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/message_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/message_user"
-        android:layout_alignParentEnd="true"
-        android:text="17:29 04/03/2018"
-        android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/message_text"
+    <include
+        layout="@layout/content_photo_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/message_user"
-        android:layout_marginTop="5dp"
-        android:paddingStart="0dp"
-        android:paddingEnd="50dp"
-        android:text="this is test text because that way I can pretend to have friends who send me messages"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/colorPrimary"
-        android:textSize="18sp" />
+        android:layout_below="@id/content_message"
+        android:visibility="gone"/>
+
+    <include
+        layout="@layout/content_event_stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content_photo_message"
+        android:visibility="gone"/>
 
 </RelativeLayout>

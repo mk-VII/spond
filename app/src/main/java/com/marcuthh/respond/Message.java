@@ -9,6 +9,10 @@ public class Message {
     private boolean messageViewed;
     private long messageTime;
 
+    //additional
+    private String eventKey;
+    private String photoLoc;
+
     public Message(String msgText, String msgSender) {
         messageText = msgText;
         messageSender = msgSender;
@@ -46,5 +50,29 @@ public class Message {
 
     public long getMessageTime() {
         return messageTime;
+    }
+
+    public String getEventKey() {
+        return eventKey;
+    }
+
+    public void setEventKey(String eventKey) {
+        this.eventKey = eventKey;
+    }
+
+    public boolean hasEvent() {
+        return (eventKey != null && !eventKey.equals(""));
+    }
+
+    public String getPhotoLoc() {
+        return photoLoc;
+    }
+
+    public void setPhotoLoc(String photoLoc) {
+        this.photoLoc = photoLoc;
+    }
+
+    public boolean hasPhoto() {
+        return (photoLoc != null && !photoLoc.equals(""));
     }
 }

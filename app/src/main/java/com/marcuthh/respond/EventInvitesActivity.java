@@ -15,9 +15,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SearchView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +32,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
-public class UsersTestActivity extends AppCompatActivity {
+public class EventInvitesActivity extends AppCompatActivity {
 
     private static String TAG = "UserActivity";
 
@@ -70,11 +68,6 @@ public class UsersTestActivity extends AppCompatActivity {
         mDbRefEvents.keepSynced(true);
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
     }
 
     @Override
@@ -118,71 +111,120 @@ public class UsersTestActivity extends AppCompatActivity {
                         viewHolder.getAttendingSwitchControl()
                                 .setOnCheckedChangeListener(attendSwitchListener(eventKey, model.getSentTimestamp()));
 
-                        mDbRefEvents.child(eventKey).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                String eventTitle = "";
-                                String eventAdmin = "";
-                                String eventImage = "";
+                        mDbRefEvents.child(eventKey).addValueEventListener(eventDataChangeListener(eventKey, viewHolder));
 
-                                if (dataSnapshot.child("eventTitle").getValue() != null) {
-                                    eventTitle = dataSnapshot.child("eventTitle").getValue().toString();
-                                    viewHolder.setEventTitle(eventTitle);
-                                }
-                                if (dataSnapshot.child("eventAdmin").getValue() != null) {
-                                    eventAdmin = dataSnapshot.child("eventAdmin").getValue().toString();
-                                    mDbRefUsers.child(eventAdmin)
-                                            .child("displayName")
-                                            .addValueEventListener(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dsDisplayName) {
-                                                    if (dsDisplayName != null && dsDisplayName.getValue() != null) {
-                                                        String displayName = dsDisplayName.getValue().toString();
-                                                        viewHolder.setInvitedBy(displayName);
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-                                                    Log.d(TAG, "unable to fetch event admin data");
-                                                }
-                                            });
-                                }
-                                if (dataSnapshot.child("eventImage").getValue() != null) {
-                                    eventImage = dataSnapshot.child("eventImage").getValue().toString();
-
-                                    mStorageRef.child("images/events/" + eventKey + "/" + eventImage)
-                                            .getDownloadUrl().addOnCompleteListener(imageCompleteListener(viewHolder));
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.d(TAG, "error fetching events: " + databaseError.getMessage());
-                            }
-                        });
-
-                        viewHolder.getView().setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                int viewId = view.getId();
-
-                                if (viewId == R.id.swch_event_attending) {
-
-                                } else {
-                                    Intent evIntent = new Intent(
-                                            UsersTestActivity.this,
-                                            ProfileActivity.class
-                                    );
-                                    evIntent.putExtra("EVENT_ID", eventKey);
-                                    startActivity(evIntent);
-                                }
-                            }
-                        });
+                        viewHolder.getView().setOnClickListener(itemClickListener(eventKey));
                     }
                 };
 
+        recyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = recyclerAdapter.getItemCount();
+                int lastVisiblePosition =
+                        ((LinearLayoutManager) invites_list.getLayoutManager())
+                                .findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (friendlyMessageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    ((LinearLayoutManager) invites_list.getLayoutManager())
+                            .scrollToPosition(positionStart);
+                }
+            }
+        });
+
         invites_list.setAdapter(recyclerAdapter);
+    }
+
+    private ValueEventListener eventDataChangeListener(final String eventKey, final EventsViewHolder viewHolder) {
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String eventTitle;
+                String eventAdmin;
+                String eventImage;
+
+                if (dataSnapshot.child("eventTitle").getValue() != null) {
+                    eventTitle = dataSnapshot.child("eventTitle").getValue().toString();
+                    viewHolder.setEventTitle(eventTitle);
+                }
+                if (dataSnapshot.child("eventAdmin").getValue() != null) {
+                    eventAdmin = dataSnapshot.child("eventAdmin").getValue().toString();
+                    mDbRefUsers.child(eventAdmin)
+                            .child("displayName")
+                            .addValueEventListener(userDataChangeListener(
+                                    (eventAdmin.equals(mCurrentUserId)),
+                                    viewHolder)
+                            );
+                }
+                if (dataSnapshot.hasChild(LOC_INVITES)) {
+                    long invitedCount = dataSnapshot.child(LOC_INVITES).getChildrenCount();
+
+                    int attendingCount = 0;
+                    for (DataSnapshot dsInvite : dataSnapshot.child(LOC_INVITES).getChildren()) {
+                        int inviteStatus = Integer.parseInt(dsInvite.child("status").getValue().toString());
+
+                        if (inviteStatus == EventInvite.ATTENDING) {
+                            attendingCount++;
+                        }
+                    }
+
+                    viewHolder.setNumAttending(invitedCount, attendingCount);
+                }
+                if (dataSnapshot.child("eventImage").getValue() != null) {
+                    eventImage = dataSnapshot.child("eventImage").getValue().toString();
+
+                    mStorageRef.child("images/events/" + eventKey + "/" + eventImage)
+                            .getDownloadUrl().addOnCompleteListener(imageCompleteListener(viewHolder));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "error fetching events: " + databaseError.getMessage());
+            }
+        };
+    }
+
+    private ValueEventListener userDataChangeListener(final boolean isAdmin, final EventsViewHolder viewHolder) {
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dsDisplayName) {
+                if (dsDisplayName != null && dsDisplayName.getValue() != null) {
+                    String displayName = dsDisplayName.getValue().toString();
+                    viewHolder.setInvitedBy(isAdmin, displayName);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "unable to fetch event admin data");
+            }
+        };
+    }
+
+    private View.OnClickListener itemClickListener(final String eventKey) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int viewId = view.getId();
+
+                if (viewId == R.id.swch_event_attending) {
+
+                } else {
+                    Intent evIntent = new Intent(
+                            EventInvitesActivity.this,
+                            EventActivity.class
+                    );
+                    evIntent.putExtra("EVENT_ID", eventKey);
+                    startActivity(evIntent);
+                }
+            }
+        };
     }
 
     private CompoundButton.OnCheckedChangeListener attendSwitchListener(final String eventKey, final long sentTimestamp) {
@@ -218,13 +260,13 @@ public class UsersTestActivity extends AppCompatActivity {
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError != null) {
                             Log.d(TAG, "error responding to event: " + databaseError.getMessage());
-                        } else {
+                        }/* else {
                             Snackbar.make(
                                     findViewById(R.id.event_layout),
                                     "Your status for this event has been updated",
                                     Snackbar.LENGTH_LONG
                             ).show();
-                        }
+                        }*/
                     }
                 });
             }

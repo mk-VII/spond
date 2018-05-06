@@ -1,33 +1,42 @@
 package com.marcuthh.respond;
 
+import java.util.ArrayList;
+
 //Chat module
 public class Conversation {
 
-    private String[] userKeys;
-    private Message[] messages;
-    private long lastMessaged;
+    private boolean seen;
+    private long timestamp;
+    private ArrayList<Message> chatMessages;
 
-    public Conversation() {
+    public Conversation() {}
+
+    public Conversation(boolean seen, long timestamp) {
+        this.seen = seen;
+        this.timestamp = timestamp;
     }
 
-    public Conversation(String[] keys, Message[] mess) {
-        userKeys = keys;
-        messages = mess;
+    public boolean isSeen() {
+        return seen;
     }
 
-    public String[] getUsers() {
-        return userKeys;
+    public void setSeen(boolean seen) {
+        this.seen = seen;
     }
 
-    public void setUsers(String[] keys) {
-        this.userKeys = keys;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public Message[] getMessages() {
-        return messages;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public void setMessages(Message[] mess) {
-        this.messages = mess;
+    public ArrayList<Message> getChatMessages() {
+        return chatMessages;
+    }
+
+    public void setChatMessages(ArrayList<Message> chatMessages) {
+        this.chatMessages = chatMessages;
     }
 }

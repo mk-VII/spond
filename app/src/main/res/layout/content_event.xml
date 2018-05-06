@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,4 +8,88 @@
     tools:context=".EventActivity"
     tools:showIn="@layout/activity_event">
 
-</android.support.constraint.ConstraintLayout>
+    <ImageView
+        android:id="@+id/event_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/no_account_photo" />
+
+    <TextView
+        android:id="@+id/event_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_image"
+        android:text="The really long title of our event even though it doesn't have a name yet"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18dp"
+        android:textStyle="normal|bold" />
+
+    <LinearLayout
+        android:id="@+id/event_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_title"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/event_loc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:gravity="center"
+            android:text="My House\nS2 3QL"
+            android:textColor="@color/colorAccent"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/event_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:gravity="center"
+            android:text="23 Apr 2018"
+            android:textColor="@color/colorAccent"
+            android:textSize="18dp" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/event_attnd_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_info_layout"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/txt_event_not_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/swch_event_attending"
+            android:text="@string/event_not_attending"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal|bold" />
+
+        <Switch
+            android:id="@+id/swch_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:paddingHorizontal="10dp" />
+
+        <TextView
+            android:id="@+id/txt_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/swch_event_attending"
+            android:text="@string/event_attending"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal|bold"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

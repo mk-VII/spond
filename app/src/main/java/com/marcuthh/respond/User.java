@@ -13,6 +13,7 @@ public class User {
     private String accountPhotoName;
     private String accountPhotoNames;
     private String status;
+    private String defaultResponse;
     private long lastOnline;
     private boolean privateProfile;
 
@@ -22,13 +23,14 @@ public class User {
     //token set on initial registration
     private String token;
 
-    public User() {}
+    public User() {
+    }
 
     public User(String phoneNumber, String emailAddress,
                 String firstName, String surname, String displayName,
                 String accountPhotoName, String accountPhotoNames,
-                String status, long lastOnline, boolean isPrivate,
-                boolean complete, String token) {
+                String status, String defaultResponse, long lastOnline,
+                boolean isPrivate, boolean complete, String token) {
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.firstName = firstName;
@@ -37,6 +39,7 @@ public class User {
         this.accountPhotoName = accountPhotoName;
         this.accountPhotoNames = accountPhotoNames;
         this.status = status;
+        this.defaultResponse = defaultResponse;
         this.lastOnline = lastOnline;
         this.privateProfile = isPrivate;
 
@@ -87,7 +90,9 @@ public class User {
         this.displayName = displayName;
     }
 
-    public String getAccountPhotoName() { return accountPhotoName; }
+    public String getAccountPhotoName() {
+        return accountPhotoName;
+    }
 
     public void setAccountPhotoName(String accountPhotoName, boolean appendTolist) {
         this.accountPhotoName = accountPhotoName;
@@ -96,20 +101,42 @@ public class User {
         }
     }
 
-    public boolean isComplete() { return complete; }
+    public boolean isComplete() {
+        return complete;
+    }
 
-    public void setComplete() { complete = true; }
+    public void setComplete() {
+        complete = true;
+    }
 
     private void removeNulls() {
-        if (phoneNumber == null) { phoneNumber = ""; }
-        if (emailAddress == null) { emailAddress = ""; }
-        if (firstName == null) { firstName = ""; }
-        if (surname == null) { surname = ""; }
-        if (displayName == null) { displayName = ""; }
-        if (accountPhotoName == null) { accountPhotoName = ""; }
-        if (accountPhotoNames == null) { accountPhotoNames = ""; }
-        if (status == null) { status = ""; }
-        if (token == null) { token = ""; }
+        if (phoneNumber == null) {
+            phoneNumber = "";
+        }
+        if (emailAddress == null) {
+            emailAddress = "";
+        }
+        if (firstName == null) {
+            firstName = "";
+        }
+        if (surname == null) {
+            surname = "";
+        }
+        if (displayName == null) {
+            displayName = "";
+        }
+        if (accountPhotoName == null) {
+            accountPhotoName = "";
+        }
+        if (accountPhotoNames == null) {
+            accountPhotoNames = "";
+        }
+        if (status == null) {
+            status = "";
+        }
+        if (token == null) {
+            token = "";
+        }
     }
 
     public String buildAccountPhotoNodeFilter(String u_Id, boolean appendFileName) {
@@ -125,12 +152,18 @@ public class User {
         return "";
     }
 
-    public boolean usesDefaultPhoto() { return accountPhotoName.equals(""); }
+    public boolean usesDefaultPhoto() {
+        return accountPhotoName.equals("");
+    }
 
-    public String getAccountPhotoNames() { return accountPhotoNames; }
+    public String getAccountPhotoNames() {
+        return accountPhotoNames;
+    }
 
     private void addAccountPhotoName(String[] photoNames) {
-        if (accountPhotoNames == null) { accountPhotoNames = ""; }
+        if (accountPhotoNames == null) {
+            accountPhotoNames = "";
+        }
         StringBuilder builder = new StringBuilder(accountPhotoNames);
         for (String photoName : photoNames) {
             if (!photoName.equals("")) {
@@ -160,6 +193,14 @@ public class User {
         this.status = status;
     }
 
+    public String getDefaultResponse() {
+        return defaultResponse;
+    }
+
+    public void setDefaultResponse(String defaultResponse) {
+        this.defaultResponse = defaultResponse;
+    }
+
     public String getToken() {
         return token;
     }
@@ -175,4 +216,5 @@ public class User {
     public void setPrivateProfile(boolean privateProfile) {
         this.privateProfile = privateProfile;
     }
+
 }

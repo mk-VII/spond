@@ -38,7 +38,17 @@
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="prompt_message">Message</string>
     <string name="search_title">Search user by display name, phone or email</string>
-    <string name="search_users_hint">search users...</string>
-    <string name="prompt_your_message">Your message...</string>
+    <string name="search_users_hint">search users&#8230;</string>
+    <string name="prompt_your_message">Your message&#8230;</string>
+    <string name="chat_label">Chat Label</string>
+    <string name="chat_last_contacted_by">Last contacted by&#8230;</string>
+    <string name="chat_last_contacted_time">(00:00)</string>
+    <string name="event_not_attending">Not attending</string>
+    <string name="event_attending">Attending</string>
+    <string name="user_default_response">My default response</string>
+    <string name="title_activity_event">Event Details</string>
+    <string name="title_activity_event_invites">My Event Invites</string>
+    <string name="menu_my_invites">My Event Invites</string>
+    <string name="event_admin_self">You are event admin</string>
 
 </resources>

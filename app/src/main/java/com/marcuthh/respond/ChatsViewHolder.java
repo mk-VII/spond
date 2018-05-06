@@ -9,36 +9,52 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-public class UsersViewHolder extends RecyclerView.ViewHolder {
+public class ChatsViewHolder extends RecyclerView.ViewHolder {
 
     private View view;
 
-    public UsersViewHolder(View itemView) {
+    public ChatsViewHolder(View itemView) {
         super(itemView);
 
         view = itemView;
     }
 
-    public void setDisplayName(String displayName) {
-        if (displayName != null && !displayName.equals("")) {
-            TextView user_displayName = (TextView) view.findViewById(R.id.user_displayName);
-            user_displayName.setText(displayName);
+    public String getChatLabel() {
+        TextView chat_label = (TextView) view.findViewById(R.id.chat_label);
+        if (chat_label.getText() == null) {
+            chat_label.setText("");
+        }
+
+        return chat_label.getText().toString();
+    }
+
+    public void setChatLabel(String label) {
+        if (label != null && !label.equals("")) {
+            TextView chat_label = (TextView) view.findViewById(R.id.chat_label);
+            chat_label.setText(label);
         }
     }
 
-    public void setStatus(String status) {
-        if (status != null && !status.equals("")) {
-            TextView user_status = (TextView) view.findViewById(R.id.user_status);
-            user_status.setText(status);
+    public void setContactedBy(String contactedBy) {
+        if (contactedBy != null && !contactedBy.equals("")) {
+            TextView chat_last_contacted_by = (TextView) view.findViewById(R.id.chat_last_contacted_by);
+            chat_last_contacted_by.setText(contactedBy);
         }
     }
 
-    public void setProfileImage(Context context, Uri fileUri) {
-        ImageView user_image = (ImageView) view.findViewById(R.id.user_image);
+    public void setContactedTime(String contactedTime) {
+        if (contactedTime != null && !contactedTime.equals("")) {
+            TextView chat_last_contacted_time = (TextView) view.findViewById(R.id.chat_last_contacted_time);
+            chat_last_contacted_time.setText(contactedTime);
+        }
+    }
+
+    public void setChatImage(Context context, Uri fileUri) {
+        ImageView chat_image = (ImageView) view.findViewById(R.id.chat_image);
         Glide.with(context)
                 .load(fileUri)
                 .placeholder(R.drawable.no_account_photo)
-                .into(user_image);
+                .into(chat_image);
     }
 
     public View getView() {

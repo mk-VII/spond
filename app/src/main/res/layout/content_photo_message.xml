@@ -1,78 +1,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/message_layout"
+    android:id="@+id/content_photo_message"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/event_image"
+        android:id="@+id/message_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/no_account_photo" />
-
-    <LinearLayout
-        android:id="@+id/event_info_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/event_image"
-        android:orientation="horizontal"
-        android:paddingVertical="10dp">
-
-        <TextView
-            android:id="@+id/event_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight=".63"
-            android:text="The really long title of our event even though it doesn't have a name yet"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18dp"
-            android:textStyle="normal|bold" />
-
-        <TextView
-            android:id="@+id/event_date"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.30"
-            android:gravity="center_horizontal"
-            android:text="23 Apr 2018"
-            android:textColor="@color/colorAccent"
-            android:textSize="18dp" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/event_btns_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="10dp"
-        android:layout_below="@id/event_info_layout">
-
-        <TextView
-            android:id="@+id/txt_event_not_attending"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/swch_event_attending"
-            android:text="@string/event_not_attending"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="normal|bold" />
-
-        <Switch
-            android:id="@+id/swch_event_attending"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:paddingHorizontal="10dp" />
-
-        <TextView
-            android:id="@+id/txt_event_attending"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/swch_event_attending"
-            android:text="@string/event_attending"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="normal|bold"
-            android:visibility="invisible"/>
-
-    </RelativeLayout>
 
 </RelativeLayout>

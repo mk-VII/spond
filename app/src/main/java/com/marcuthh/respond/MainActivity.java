@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 //user not yet loaded from database
-                if (appUser == null) {
+                if (mAuth.getCurrentUser() != null) {
                     //get user data
                     mDbRef = mDatabase.getReference(TBL_USERS);
                     mDbRef.keepSynced(true);
@@ -237,6 +237,12 @@ public class MainActivity extends AppCompatActivity {
                     AccountActivity.class
             );
             startActivity(accountIntent);
+        } else if (mItem.getItemId() == R.id.menu_my_invites) {
+            Intent invitesIntent = new Intent(
+                    MainActivity.this,
+                    EventInvitesActivity.class
+            );
+            startActivity(invitesIntent);
         }
         return true;
     }
@@ -293,6 +299,13 @@ public class MainActivity extends AppCompatActivity {
                         "Welcome back, " + appUser.getDisplayName() + "!",
                         Toast.LENGTH_LONG)
                         .show();
+
+//                Intent evIntent = new Intent(
+//                        MainActivity.this,
+//                        EventActivity.class
+//                );
+//                evIntent.putExtra("EVENT_ID", "1234567890");
+//                startActivity(evIntent);
             } else {
                 //start new activity for user to complete details
                 Intent accountIntent = new Intent(
@@ -326,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                             appUser = new User(
                                     phoneNumber, emailAddress,
                                     firstName, surname, displayName,
-                                    photoName, accountPhotoNames, "",
+                                    photoName, accountPhotoNames, "", "",
                                     0, false, isComplete, token);
 
                             //get current user signed into app

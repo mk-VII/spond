@@ -99,29 +99,16 @@ public class ProfileActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //the keys that will be looked for in chat records
-                //ids of the viewer and view-ee
-                String chatKey = getChatKeyForUsers(
-                        dataSnapshot,
-                        new String[]{
-                                profileUid,
-                                mCurrentUser.getUid()
-                        }
-                );
-
                 //intent for chat window between users
                 Intent chatIntent = new Intent(
                         ProfileActivity.this,
                         ChatActivity.class
                 );
-                if (!chatKey.equals("")) {
-                    //chat found that contains only the two keys
-                    chatIntent.putExtra("CHAT_ID", chatKey);
-                } else {
-                    //no chat found between the two users
-                    chatIntent.putExtra("RECIPIENT_ID", profileUid);
-                    //push key for new chat - save another execution of the query in chat activity
-                    chatIntent.putExtra("NEW_CHAT_ID", ref.push().getKey());
+
+                if (!profileUid.equals("")) {
+                    //just passes the profile user's key at this point
+                    //ChatActivity will find any existing chat data
+                    chatIntent.putExtra("CHAT_PARTNER_ID", profileUid);
                 }
                 //open either existing or new chat
                 startActivity(chatIntent);

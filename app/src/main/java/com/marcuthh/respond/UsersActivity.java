@@ -92,7 +92,7 @@ public class UsersActivity extends AppCompatActivity {
 
                         String photoName = model.getAccountPhotoName();
                         if (photoName != null && !photoName.equals("")) {
-                            //calculate the path to user's profile picture
+                            //configure the path to user's profile picture
                             FirebaseStorage.getInstance().getReference(
                                     model.buildAccountPhotoNodeFilter(
                                             uid,
