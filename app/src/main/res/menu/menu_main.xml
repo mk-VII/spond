@@ -19,6 +19,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/my_test_chat"
+        android:title="Go to my test chat"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_account"
         android:title="@string/menu_account"
         app:showAsAction="never" />

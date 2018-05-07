@@ -6,19 +6,19 @@ public class Message {
 
     private String messageText;
     private String messageSender;
-    private boolean messageViewed;
-    private long messageTime;
+    private String messageChat;
+    private long messageTimestamp;
 
     //additional
     private String eventKey;
     private String photoLoc;
 
-    public Message(String msgText, String msgSender) {
+    public Message(String msgText, String msgSender, String msgChat) {
         messageText = msgText;
         messageSender = msgSender;
-        messageViewed = false;
+        messageChat = msgChat;
         //initialise as system time
-        messageTime = new Date().getTime();
+        messageTimestamp = new Date().getTime();
     }
 
     public Message() {
@@ -40,16 +40,8 @@ public class Message {
         this.messageSender = messageSender;
     }
 
-    public boolean isMessageViewed() {
-        return messageViewed;
-    }
-
-    public void setMessageViewed(boolean messageViewed) {
-        this.messageViewed = messageViewed;
-    }
-
-    public long getMessageTime() {
-        return messageTime;
+    public long getMessageTimestamp() {
+        return messageTimestamp;
     }
 
     public String getEventKey() {
@@ -74,5 +66,13 @@ public class Message {
 
     public boolean hasPhoto() {
         return (photoLoc != null && !photoLoc.equals(""));
+    }
+
+    public String getMessageChat() {
+        return messageChat;
+    }
+
+    public void setMessageChat(String messageChat) {
+        this.messageChat = messageChat;
     }
 }

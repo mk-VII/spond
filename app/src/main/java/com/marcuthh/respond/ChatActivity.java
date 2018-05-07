@@ -1,7 +1,6 @@
 package com.marcuthh.respond;
 
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -9,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -35,7 +33,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -65,8 +62,7 @@ public class ChatActivity extends AppCompatActivity {
     //Firebase components
 
     private String mCurrentUserId;
-    private String mChatUserId;
-    private Conversation conversation;
+    private String mChatId;
 
     FloatingActionButton btnSendMsg;
     EditText input;
@@ -108,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
         message_list.setHasFixedSize(true);
         message_list.setLayoutManager(new LinearLayoutManager(this));
 
-        mChatUserId = getIntent().getStringExtra("CHAT_PARTNER_ID");
+        mChatId = getIntent().getStringExtra("CHAT_ID");
 
         mDbRefRoot = mDatabase.getReference();
         mDbRefRoot.keepSynced(true);
@@ -126,34 +122,29 @@ public class ChatActivity extends AppCompatActivity {
         getUserDefaultResponse();
     }
 
-    private void getUserDefaultResponse() {
-        mDatabase.getReference(LOC_USERS).child(mCurrentUserId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild("defaultResponse")) {
-                    defaultResponse = dataSnapshot.child("defaultResponse").getValue().toString();
-                } else {
-                    defaultResponse = getString(R.string.user_default_response);
-                }
-
-                //set text as initial hint
-                input.setHint("\"" + defaultResponse + "\"");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
 
-        if (mChatUserId != null && !mChatUserId.equals("")) {
-            displayChatMessages(mDbRefEvents.equalTo(""));
+        if (mChatId != null && !mChatId.equals("")) {
+            Query qChatMessages = mDbRefMessages
+                    .orderByChild("messageChat")
+                    .equalTo(mChatId);
+            qChatMessages.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    displayChatMessages(dataSnapshot
+                            .getRef()
+                            .orderByChild("messageTimestamp")
+                    );
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "error getting messages: " + databaseError.getMessage());
+                }
+            });
         }
     }
 
@@ -209,15 +200,15 @@ public class ChatActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.hasChild(mChatUserId)) {
+                if (!dataSnapshot.hasChild(mChatId)) {
 
                     HashMap<String, Object> chatAddMap = new HashMap<String, Object>();
                     chatAddMap.put("seen", false);
                     chatAddMap.put("timestamp", ServerValue.TIMESTAMP);
 
                     HashMap<String, Object> chatUserMap = new HashMap<String, Object>();
-                    chatUserMap.put(mCurrentUserId + "/" + mChatUserId, chatAddMap);
-                    chatUserMap.put(mChatUserId + "/" + mCurrentUserId, chatAddMap);
+                    chatUserMap.put(mCurrentUserId + "/" + mChatId, chatAddMap);
+                    chatUserMap.put(mChatId + "/" + mCurrentUserId, chatAddMap);
 
                     mDbRefChats.updateChildren(chatUserMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -241,29 +232,14 @@ public class ChatActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (mChatUserId != null && !mChatUserId.equals("")) {
-                    mDbRefMessages.orderByChild("mChatUserId").equalTo(mChatUserId);
+                if (mChatId != null && !mChatId.equals("")) {
+                    mDbRefMessages.orderByChild("mChatId").equalTo(mChatId);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-            }
-        };
-    }
-
-    private ValueEventListener onDataChangeListener() {
-        return new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "error: " + databaseError.getMessage());
-                //...
             }
         };
     }
@@ -275,49 +251,88 @@ public class ChatActivity extends AppCompatActivity {
                 final EditText input = (EditText) findViewById(R.id.input);
                 String message = input.getText().toString();
 
-                if (message != null && !message.equals("")) {
+                if (!message.equals("")) {
+                    if (mChatId == null || mChatId.equals("")) {
+                        mChatId = mDbRefChats.push().getKey();
+                    }
 
-                    final String currentUserRef = LOC_MESSAGES + "/" + mCurrentUserId + "/" + mChatUserId;
-                    final String chatUserRef = LOC_MESSAGES + "/" + mChatUserId + "/" + mCurrentUserId;
+                    String messageKey = mDbRefMessages.push().getKey();
 
-                    String pushId = mDbRefRoot.child(currentUserRef).push().getKey();
+                    HashMap<String, Object> messageMap = new HashMap<String, Object>();
+                    messageMap.put("messageText", message);
+                    messageMap.put("messageTimestamp", ServerValue.TIMESTAMP);
+                    messageMap.put("messageSender", mCurrentUserId);
+                    messageMap.put("messageChat", mChatId);
 
-                    Map<String, Object> messageMap = new HashMap<String, Object>();
-                    messageMap.put("message", message);
-                    messageMap.put("viewed", false);
-                    messageMap.put("type", "text");
-                    messageMap.put("time", ServerValue.TIMESTAMP);
-                    messageMap.put("sender", mCurrentUserId);
+                    HashMap<String, Object> messageChatMap = new HashMap<String, Object>();
+                    messageChatMap.put(messageKey, messageMap);
 
-                    Map<String, Object> messageUserMap = new HashMap<String, Object>();
-                    messageUserMap.put(currentUserRef + "/" + pushId, messageMap);
-                    messageUserMap.put(chatUserRef + "/" + pushId, messageMap);
-
-                    mDbRefMessages.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                            if (databaseError != null) {
-                                Log.d(TAG, databaseError.getMessage());
-                                Toast.makeText(
-                                        getApplicationContext(),
-                                        "Error sending message!",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            } else {
-                                mDbRefChats.child(currentUserRef).child("seen").setValue(true);
-                                mDbRefChats.child(currentUserRef).child("timestamp").setValue(ServerValue.TIMESTAMP);
-                                mDbRefChats.child(currentUserRef).child("seen").setValue(true);
-                                mDbRefChats.child(currentUserRef).child("timestamp").setValue(ServerValue.TIMESTAMP);
-
-                                //clear for subsequent input
-                                input.setText("");
-                            }
-                        }
-                    });
+                    mDbRefMessages.updateChildren(messageChatMap, messagesSentListener());
                 } else {
                     //load default response text into field to allow sending
                     input.setText(defaultResponse);
                 }
+            }
+        };
+    }
+
+    private DatabaseReference.CompletionListener messagesSentListener() {
+        return new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError != null) {
+                    Log.d(TAG, databaseError.getMessage());
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Error sending message!",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                } else {
+                    mDbRefChats.child(mChatId).addValueEventListener(updateChatStatus());
+
+                    //clear for subsequent input
+                    input.setText("");
+                }
+            }
+        };
+    }
+
+    private ValueEventListener updateChatStatus() {
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot chatSnapshot) {
+                if (chatSnapshot.child("members").hasChildren()) {
+                    //loop through all users in the chat
+                    for (DataSnapshot member : chatSnapshot.child("members").getChildren()) {
+                        //all will be flagged as having not seen the chat
+                        //apart from the sender
+                        boolean chatSeen = false;
+                        if (member.getKey().equals(mCurrentUserId)) {
+                            chatSeen = true;
+                        }
+
+                        //update values on the chat side
+                        DatabaseReference chatUserRef = mDbRefChats
+                                .child(mChatId)
+                                .child("members")
+                                .child(member.getKey());
+                        chatUserRef.child("seen").setValue(chatSeen);
+                        chatUserRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+
+                        //update values on the individual user records
+                        DatabaseReference userChatRef = mDbRefUsers
+                                .child(member.getKey())
+                                .child("member")
+                                .child(mChatId);
+                        userChatRef.child("seen").setValue(chatSeen);
+                        userChatRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Error updating chat record: " + databaseError.getMessage());
             }
         };
     }
@@ -334,16 +349,15 @@ public class ChatActivity extends AppCompatActivity {
                     protected void populateViewHolder(final MessagesViewHolder viewHolder, final Message model, int position) {
                         viewHolder.setMessageDisplay((model.getMessageSender().equals(mCurrentUserId)));
                         //all messages have at least a sender, time and text//
-                        viewHolder.setMessageTime(model.getMessageTime());
+                        viewHolder.setMessageTime(model.getMessageTimestamp());
                         viewHolder.setMessageText(model.getMessageText());
 
                         mDbRefUsers.child(model.getMessageSender()).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 String senderName = "";
-                                String childDisplayName = "displayName";
-                                if (dataSnapshot.hasChild(childDisplayName)) {
-                                    senderName = dataSnapshot.child(childDisplayName).getValue().toString();
+                                if (dataSnapshot.hasChild("displayName")) {
+                                    senderName = dataSnapshot.child("displayName").getValue().toString();
                                 } else {
                                     String firstName = dataSnapshot.child("firstName").getValue().toString();
                                     String surname = dataSnapshot.child("surname").getValue().toString();
@@ -411,7 +425,6 @@ public class ChatActivity extends AppCompatActivity {
                                     viewHolder.setEventVisible(View.GONE);
                                 }
                             });
-
                         } else if (model.hasPhoto()) {
                             FirebaseStorage.getInstance()
                                     .getReference(model.getPhotoLoc()).getDownloadUrl()
@@ -433,5 +446,48 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }
                 };
+
+        recyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = recyclerAdapter.getItemCount();
+                int lastVisiblePosition =
+                        ((LinearLayoutManager) message_list.getLayoutManager())
+                                .findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (friendlyMessageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    ((LinearLayoutManager) message_list.getLayoutManager())
+                            .scrollToPosition(positionStart);
+                }
+            }
+        });
+
+        message_list.setAdapter(recyclerAdapter);
+    }
+
+    private void getUserDefaultResponse() {
+        mDatabase.getReference(LOC_USERS).child(mCurrentUserId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild("defaultResponse")) {
+                    defaultResponse = dataSnapshot.child("defaultResponse").getValue().toString();
+                } else {
+                    defaultResponse = getString(R.string.user_default_response);
+                }
+
+                //set text as initial hint
+                input.setHint("\"" + defaultResponse + "\"");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

@@ -5,8 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/activity_horizontal_margin"
-    android:paddingVertical="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.marcuthh.respond.ChatActivity"
     tools:showIn="@layout/activity_chat">
@@ -15,7 +13,8 @@
         android:id="@+id/layout_sendMsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:padding="@dimen/activity_horizontal_margin">
 
         <EditText
             android:id="@+id/input"

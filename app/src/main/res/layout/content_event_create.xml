@@ -8,8 +8,8 @@
     android:paddingHorizontal="@dimen/activity_horizontal_margin"
     android:paddingVertical="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.marcuthh.respond.AccountActivity"
-    tools:showIn="@layout/activity_account">
+    tools:context=".EventCreateActivity"
+    tools:showIn="@layout/activity_event_create">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -17,17 +17,18 @@
         android:layout_gravity="center">
 
         <ImageView
-            android:id="@+id/img_account"
+            android:id="@+id/img_event"
             android:layout_width="160dp"
             android:layout_height="160dp"
             android:layout_centerHorizontal="true"
-            android:contentDescription="@string/account_photo_tag" />
+            android:contentDescription="@string/event_photo_tag"
+            android:src="@drawable/event_default" />
 
         <LinearLayout
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/img_account">
+            android:layout_below="@id/img_event">
 
             <Button
                 android:id="@+id/btn_clearPhoto"
@@ -52,67 +53,111 @@
                 android:textColor="@color/colorLight" />
 
         </LinearLayout>
+
     </RelativeLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/input_layout_yourName"
+        android:id="@+id/input_layout_eventTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/etxt_yourName"
+            android:id="@+id/etxt_eventTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/account_hint_yourName"
-            android:inputType="textPersonName"
+            android:hint="@string/event_hint_title"
+            android:inputType="textAutoCorrect"
             android:textColor="@color/colorPrimaryDark" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/input_layout_displayName"
+        android:id="@+id/input_layout_eventDateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/etxt_displayName"
+            android:id="@+id/etxt_eventDateTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/account_hint_displayName"
-            android:inputType="text"
+            android:hint="@string/event_hint_datetime"
+            android:inputType="datetime"
             android:textColor="@color/colorPrimaryDark" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/input_layout_phone"
+        android:id="@+id/input_layout_eventLoc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/etxt_phone"
+            android:id="@+id/etxt_eventLoc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/account_hint_phone"
-            android:inputType="phone"
+            android:hint="@string/event_hint_loc"
+            android:inputType="textAutoCorrect"
             android:textColor="@color/colorPrimaryDark" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/input_layout_email"
+        android:id="@+id/input_layout_eventDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/etxt_email"
+            android:id="@+id/etxt_eventDesc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/account_hint_email"
-            android:inputType="textEmailAddress"
+            android:hint="@string/event_hint_desc"
+            android:inputType="textImeMultiLine"
             android:textColor="@color/colorPrimaryDark" />
     </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Am I attending?"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary" />
+
+    <RelativeLayout
+        android:id="@+id/event_attnd_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/txt_event_not_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/swch_event_attending"
+            android:text="@string/event_not_attending"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal|bold" />
+
+        <Switch
+            android:id="@+id/swch_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:paddingHorizontal="10dp" />
+
+        <TextView
+            android:id="@+id/txt_event_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/swch_event_attending"
+            android:text="@string/event_attending"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="normal|bold"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
 
     <Button
         android:id="@+id/btn_save"
@@ -123,7 +168,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
-        android:text="@string/account_save"
+        android:text="@string/event_create_invite"
         android:textColor="@color/colorLight" />
 
 </LinearLayout>

@@ -3,15 +3,15 @@ package com.marcuthh.respond;
 import java.util.ArrayList;
 
 //Chat module
-public class Conversation {
+public class Chat {
 
     private boolean seen;
     private long timestamp;
     private ArrayList<Message> chatMessages;
 
-    public Conversation() {}
+    public Chat() {}
 
-    public Conversation(boolean seen, long timestamp) {
+    public Chat(boolean seen, long timestamp) {
         this.seen = seen;
         this.timestamp = timestamp;
     }

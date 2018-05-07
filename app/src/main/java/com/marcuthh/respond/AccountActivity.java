@@ -885,7 +885,7 @@ public class AccountActivity extends AppCompatActivity {
                     if (((TextInputEditText) view).getText().toString().trim().equals("")) {
                         //display error message
                         layout.setError(layout.getHint() + " " +
-                                getString(R.string.account_input_not_empty_error));
+                                getString(R.string.input_not_empty_error));
                         //disable button until criteria added
                         btn_save.setEnabled(false);
                         //set focus to blank field
@@ -927,7 +927,7 @@ public class AccountActivity extends AppCompatActivity {
                     Toast.makeText(
                             getApplicationContext(),
                             etxt_phone.getHint() + " and " + etxt_email.getHint() + "" +
-                                    getString(R.string.account_input_not_both_empty_error),
+                                    getString(R.string.input_not_both_empty_error),
                             Toast.LENGTH_SHORT
                     ).show();
                     //disable button until criteria added

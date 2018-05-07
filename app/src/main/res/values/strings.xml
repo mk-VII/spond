@@ -16,13 +16,21 @@
     <string name="account_hint_displayName">Display name</string>
     <string name="account_hint_phone">Phone number</string>
     <string name="account_hint_email">Email address</string>
-    <string name="account_input_not_empty_error">cannot be blank!</string>
-    <string name="account_input_not_both_empty_error">cannot both be blank!</string>
+    <string name="input_not_empty_error">cannot be blank!</string>
+    <string name="input_not_both_empty_error">cannot both be blank!</string>
     <string name="account_photo_tag">your selected account photo</string>
     <!--account page button text-->
     <string name="account_save">Save account data</string>
-    <string name="account_clear_photo">Remove photo</string>
-    <string name="account_edit_photo">Change photo</string>
+    <string name="prompt_clear_photo">Remove photo</string>
+    <string name="prompt_edit_photo">Change photo</string>
+
+    <string name="event_hint_title">Event Title</string>
+    <string name="event_hint_datetime">Event Date &amp; Time (DD/MM/YYYY hh:mm)</string>
+    <string name="event_hint_loc">Event Location</string>
+    <string name="event_hint_desc">Event Description</string>
+    <string name="event_photo_tag">your selected event photo</string>
+    <string name="event_create_invite">Create &amp; send invites</string>
+    <string name="event_save">Save event data</string>
 
     <string name="title_activity_users">User Connect</string>
 
@@ -45,10 +53,14 @@
     <string name="chat_last_contacted_time">(00:00)</string>
     <string name="event_not_attending">Not attending</string>
     <string name="event_attending">Attending</string>
-    <string name="user_default_response">My default response</string>
+    <string name="user_default_response">Default acknowledgement</string>
     <string name="title_activity_event">Event Details</string>
     <string name="title_activity_event_invites">My Event Invites</string>
     <string name="menu_my_invites">My Event Invites</string>
     <string name="event_admin_self">You are event admin</string>
+    <string name="title_activity_event_create">New Event</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

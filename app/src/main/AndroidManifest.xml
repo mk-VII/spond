@@ -89,16 +89,19 @@
             android:name=".EventInvitesActivity"
             android:label="@string/title_activity_event_invites"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".UsersActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".EventActivity"
+            android:name=".EventDetailsActivity"
             android:label="@string/title_activity_event"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".EventCreateActivity"
+            android:label="@string/title_activity_event_create"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

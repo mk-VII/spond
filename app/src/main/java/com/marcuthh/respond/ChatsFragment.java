@@ -3,7 +3,6 @@ package com.marcuthh.respond;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -25,8 +24,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -78,15 +75,15 @@ public class ChatsFragment extends Fragment {
         Query userChatsQuery = mDbRefChats.orderByChild("timestamp");
 
         //<-- this needs to be a query not just a reference
-        final FirebaseRecyclerAdapter<Conversation, ChatsViewHolder> recyclerAdapter =
-                new FirebaseRecyclerAdapter<Conversation, ChatsViewHolder>(
-                        Conversation.class,
+        final FirebaseRecyclerAdapter<Chat, ChatsViewHolder> recyclerAdapter =
+                new FirebaseRecyclerAdapter<Chat, ChatsViewHolder>(
+                        Chat.class,
                         R.layout.chat_item,
                         ChatsViewHolder.class,
                         userChatsQuery
                 ) {
                     @Override
-                    protected void populateViewHolder(final ChatsViewHolder viewHolder, Conversation model, int position) {
+                    protected void populateViewHolder(final ChatsViewHolder viewHolder, Chat model, int position) {
                         final String chatPartnerId = getRef(position).getKey();
 
                         mDbRefChats.child(chatPartnerId).addValueEventListener(new ValueEventListener() {

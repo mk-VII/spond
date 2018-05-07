@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -90,10 +89,10 @@ public class EventInvitesActivity extends AppCompatActivity {
         super.onStart();
 
         Query qUserEvents = mDbRefUsers.child(mCurrentUserId).child(LOC_INVITES).orderByKey();
-        displayUsersList(qUserEvents);
+        displayEventsList(qUserEvents);
     }
 
-    private void displayUsersList(Query query) {
+    private void displayEventsList(Query query) {
         //tried to split all this up into separate methods but serious issues
         final FirebaseRecyclerAdapter<EventInvite, EventsViewHolder> recyclerAdapter =
                 new FirebaseRecyclerAdapter<EventInvite, EventsViewHolder>(
@@ -218,7 +217,7 @@ public class EventInvitesActivity extends AppCompatActivity {
                 } else {
                     Intent evIntent = new Intent(
                             EventInvitesActivity.this,
-                            EventActivity.class
+                            EventDetailsActivity.class
                     );
                     evIntent.putExtra("EVENT_ID", eventKey);
                     startActivity(evIntent);

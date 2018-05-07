@@ -36,13 +36,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class EventActivity extends AppCompatActivity {
+public class EventDetailsActivity extends AppCompatActivity {
 
     //region ////CONSTANTS////
-    private static final String TAG = "EventActivity";
+    private static final String TAG = "EventDetailsActivity";
 
     private static final String LOC_USERS = "users";
     private static final String LOC_EVENTS = "events";
+    private static final String LOC_INVITES = "eventInvites";
 
     //Firebase components
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -87,7 +88,6 @@ public class EventActivity extends AppCompatActivity {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         //set up reference to Firebase file transfer
-        //and check permissions to access files
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         //setup auth processes and callback behaviour
@@ -108,14 +108,13 @@ public class EventActivity extends AppCompatActivity {
         event_date = (TextView) findViewById(R.id.event_date);
         event_attnd_layout = findViewById(R.id.event_attnd_layout);
         swch_event_attending = (Switch) findViewById(R.id.swch_event_attending);
-        swch_event_attending.setOnCheckedChangeListener(attendanceListener());
         txt_event_not_attending = (TextView) findViewById(R.id.txt_event_not_attending);
         txt_event_attending = (TextView) findViewById(R.id.txt_event_attending);
 
         updateDisplay(mEventId);
     }
 
-    private CompoundButton.OnCheckedChangeListener attendanceListener() {
+    private CompoundButton.OnCheckedChangeListener attendanceListener(final long sentTimestamp) {
         return new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -126,14 +125,24 @@ public class EventActivity extends AppCompatActivity {
                     response = EventInvite.NOT_ATTENDING;
                 }
 
-                DatabaseReference userInviteRef = mDbRefEvents
-                        .child(mEventId).child("eventInvites").child(mCurrentUserId);
-
+                //data to be stored on event response
                 HashMap<String, Object> mapResponse = new HashMap<String, Object>();
                 mapResponse.put("status", response);
+                mapResponse.put("sentTimestamp", sentTimestamp);
                 mapResponse.put("responseTimestamp", ServerValue.TIMESTAMP);
 
-                userInviteRef.updateChildren(mapResponse, new DatabaseReference.CompletionListener() {
+                //locations at which data is stored, relating to user and event
+                HashMap<String, Object> mapInvite = new HashMap<String, Object>();
+                String inviteLocEvent = LOC_EVENTS + "/" + mEventId + "/" + LOC_INVITES + "/" + mCurrentUserId;
+                String inviteLocUser = LOC_USERS + "/" + mCurrentUserId + "/" + LOC_INVITES + "/" + mEventId;
+                mapInvite.put(inviteLocEvent, mapResponse);
+                mapInvite.put(inviteLocUser, mapResponse);
+
+                //must use database root to reach both event and user nodes
+                DatabaseReference refRoot = FirebaseDatabase.getInstance().getReference();
+
+                //write changes to database
+                refRoot.updateChildren(mapInvite, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError != null) {
@@ -188,7 +197,7 @@ public class EventActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Glide.with(getApplicationContext())
                                     .load(task.getResult())
-                                    .placeholder(R.drawable.no_account_photo)
+                                    .placeholder(R.drawable.event_default)
                                     .into(event_image);
                         } else {
                             Log.d(TAG, "unable to fetch event photo");
@@ -196,12 +205,20 @@ public class EventActivity extends AppCompatActivity {
                     }
                 });
 
-                if (dataSnapshot.child("eventInvites").hasChild(mCurrentUserId)) {
+                if (dataSnapshot.child(LOC_INVITES).hasChild(mCurrentUserId)) {
                     int status = Integer.parseInt(dataSnapshot
-                            .child("eventInvites")
+                            .child(LOC_INVITES)
                             .child(mCurrentUserId)
                             .child("status")
-                            .getValue().toString());
+                            .getValue().toString()
+                    );
+
+                    long sentTimestamp = Long.parseLong(dataSnapshot
+                            .child(LOC_INVITES)
+                            .child(mCurrentUserId)
+                            .child("sentTimestamp")
+                            .getValue().toString()
+                    );
 
                     if (status == EventInvite.ATTENDING) {
                         swch_event_attending.setChecked(true);
@@ -212,6 +229,8 @@ public class EventActivity extends AppCompatActivity {
                         txt_event_not_attending.setVisibility(View.VISIBLE);
                         txt_event_attending.setVisibility(View.INVISIBLE);
                     }
+                    //apply listener for any subsequent clicks
+                    swch_event_attending.setOnCheckedChangeListener(attendanceListener(sentTimestamp));
                 } else {
                     //do not allow response from someone with no invite
                     event_attnd_layout.setVisibility(View.INVISIBLE);

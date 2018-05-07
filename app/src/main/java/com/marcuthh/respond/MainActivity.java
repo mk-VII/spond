@@ -243,6 +243,13 @@ public class MainActivity extends AppCompatActivity {
                     EventInvitesActivity.class
             );
             startActivity(invitesIntent);
+        } else if (mItem.getItemId() == R.id.my_test_chat) {
+            Intent testChatIntent = new Intent(
+                    MainActivity.this,
+                    ChatActivity.class
+            );
+            testChatIntent.putExtra("CHAT_ID", "17KK59mUhYN6tSuq4Ol36f6hAFS3");
+            startActivity(testChatIntent);
         }
         return true;
     }
@@ -292,21 +299,7 @@ public class MainActivity extends AppCompatActivity {
                             .build(),
                     SIGN_IN_REQUEST_CODE);
         } else {
-            if (appUser.isComplete()) {
-                //user is already signed in
-                //display Welcome Toast
-                Toast.makeText(this,
-                        "Welcome back, " + appUser.getDisplayName() + "!",
-                        Toast.LENGTH_LONG)
-                        .show();
-
-//                Intent evIntent = new Intent(
-//                        MainActivity.this,
-//                        EventActivity.class
-//                );
-//                evIntent.putExtra("EVENT_ID", "1234567890");
-//                startActivity(evIntent);
-            } else {
+            if (!appUser.isComplete()) {
                 //start new activity for user to complete details
                 Intent accountIntent = new Intent(
                         MainActivity.this,

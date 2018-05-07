@@ -28,7 +28,7 @@ public class EventsViewHolder extends RecyclerView.ViewHolder {
         ImageView event_image = (ImageView) view.findViewById(R.id.event_image);
         Glide.with(cntxt)
                 .load(fileUri)
-                .placeholder(R.drawable.no_account_photo)
+                .placeholder(R.drawable.event_default)
                 .into(event_image);
     }
 
