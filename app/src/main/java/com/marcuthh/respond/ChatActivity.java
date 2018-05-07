@@ -32,6 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class ChatActivity extends AppCompatActivity {
@@ -107,17 +109,17 @@ public class ChatActivity extends AppCompatActivity {
         mChatId = getIntent().getStringExtra("CHAT_ID");
 
         mDbRefRoot = mDatabase.getReference();
-        mDbRefRoot.keepSynced(true);
+//        mDbRefRoot.keepSynced(true);
         mDbRefChats = mDatabase.getReference(LOC_CHATS);
-        mDbRefChats.keepSynced(true);
+//        mDbRefChats.keepSynced(true);
         mDbRefChats.addValueEventListener(onChatChangeListener());
         mDbRefMessages = mDatabase.getReference(LOC_MESSAGES);
-        mDbRefMessages.keepSynced(true);
+//        mDbRefMessages.keepSynced(true);
         mDbRefMessages.addValueEventListener(onMessagesChangeListener());
         mDbRefUsers = mDatabase.getReference(LOC_USERS);
-        mDbRefUsers.keepSynced(true);
+//        mDbRefUsers.keepSynced(true);
         mDbRefEvents = mDatabase.getReference(LOC_EVENTS);
-        mDbRefEvents.keepSynced(true);
+//        mDbRefEvents.keepSynced(true);
 
         getUserDefaultResponse();
     }
@@ -288,7 +290,7 @@ public class ChatActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT
                     ).show();
                 } else {
-                    mDbRefChats.child(mChatId).addValueEventListener(updateChatStatus());
+                    mDbRefChats.child(mChatId).addListenerForSingleValueEvent(updateChatStatus());
 
                     //clear for subsequent input
                     input.setText("");
@@ -302,30 +304,35 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot chatSnapshot) {
                 if (chatSnapshot.child("members").hasChildren()) {
+
+                    HashMap<String, Object> statusMap = new HashMap<String, Object>();
+                    statusMap.put("timestamp", ServerValue.TIMESTAMP);
+
                     //loop through all users in the chat
                     for (DataSnapshot member : chatSnapshot.child("members").getChildren()) {
                         //all will be flagged as having not seen the chat
                         //apart from the sender
-                        boolean chatSeen = false;
                         if (member.getKey().equals(mCurrentUserId)) {
-                            chatSeen = true;
+                            statusMap.put("seen", true);
+                        } else {
+                            statusMap.put("seen", false);
                         }
 
-                        //update values on the chat side
-                        DatabaseReference chatUserRef = mDbRefChats
-                                .child(mChatId)
-                                .child("members")
-                                .child(member.getKey());
-                        chatUserRef.child("seen").setValue(chatSeen);
-                        chatUserRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+                        String chatUserRef = LOC_CHATS + "/" + mChatId + "/members/" + member.getKey();
+                        String userChatRef = LOC_USERS + "/" + member.getKey() + "/member/" + mChatId;
 
-                        //update values on the individual user records
-                        DatabaseReference userChatRef = mDbRefUsers
-                                .child(member.getKey())
-                                .child("member")
-                                .child(mChatId);
-                        userChatRef.child("seen").setValue(chatSeen);
-                        userChatRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+                        HashMap<String, Object> chatStatusMap = new HashMap<String, Object>();
+                        chatStatusMap.put(chatUserRef, statusMap);
+                        chatStatusMap.put(userChatRef, statusMap);
+
+                        mDbRefRoot.updateChildren(chatStatusMap, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if (databaseError != null) {
+                                    Log.d(TAG, "error updating chat: " + databaseError.getMessage());
+                                }
+                            }
+                        });
                     }
                 }
             }

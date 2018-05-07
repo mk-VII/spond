@@ -64,7 +64,7 @@ public class ProfileActivity extends AppCompatActivity {
         profile_msg_btn = (Button) findViewById(R.id.profile_msg_btn);
 
         mDbRefUser = FirebaseDatabase.getInstance().getReference(CHILD_USERS);
-        mDbRefUser.keepSynced(true);
+//        mDbRefUser.keepSynced(true);
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
@@ -89,7 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final DatabaseReference dbRefChats =
                         FirebaseDatabase.getInstance().getReference(CHILD_CHATS);
-                dbRefChats.keepSynced(true);
+//                dbRefChats.keepSynced(true);
                 dbRefChats.addValueEventListener(onChatDataChange(dbRefChats));
             }
         };
@@ -192,7 +192,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             if (fullName != null && !fullName.equals("")) {
                 profile_displayName.setText(fullName);
-            } //otherwise will default to "HeadCount User"
+            } //otherwise will default to "com.marcuthh.respond.HeadCount User"
         }
 
         String status = accountData.getStatus();

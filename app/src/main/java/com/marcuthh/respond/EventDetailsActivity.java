@@ -96,11 +96,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         mEventId = getIntent().getStringExtra("EVENT_ID");
 
         mDbRefRoot = mDatabase.getReference();
-        mDbRefRoot.keepSynced(true);
+//        mDbRefRoot.keepSynced(true);
         mDbRefUsers = mDatabase.getReference(LOC_USERS);
-        mDbRefUsers.keepSynced(true);
+//        mDbRefUsers.keepSynced(true);
         mDbRefEvents = mDatabase.getReference(LOC_EVENTS);
-        mDbRefEvents.keepSynced(true);
+//        mDbRefEvents.keepSynced(true);
 
         event_image = (ImageView) findViewById(R.id.event_image);
         event_title = (TextView) findViewById(R.id.event_title);

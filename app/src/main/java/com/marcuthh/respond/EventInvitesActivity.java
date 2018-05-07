@@ -62,9 +62,9 @@ public class EventInvitesActivity extends AppCompatActivity {
         mCurrentUserId = mAuth.getCurrentUser().getUid();
 
         mDbRefUsers = FirebaseDatabase.getInstance().getReference(LOC_USERS);
-        mDbRefUsers.keepSynced(true);
+//        mDbRefUsers.keepSynced(true);
         mDbRefEvents = FirebaseDatabase.getInstance().getReference(LOC_EVENTS);
-        mDbRefEvents.keepSynced(true);
+//        mDbRefEvents.keepSynced(true);
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
     }
@@ -89,10 +89,10 @@ public class EventInvitesActivity extends AppCompatActivity {
         super.onStart();
 
         Query qUserEvents = mDbRefUsers.child(mCurrentUserId).child(LOC_INVITES).orderByKey();
-        displayEventsList(qUserEvents);
+        displayUsersList(qUserEvents);
     }
 
-    private void displayEventsList(Query query) {
+    private void displayUsersList(Query query) {
         //tried to split all this up into separate methods but serious issues
         final FirebaseRecyclerAdapter<EventInvite, EventsViewHolder> recyclerAdapter =
                 new FirebaseRecyclerAdapter<EventInvite, EventsViewHolder>(

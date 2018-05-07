@@ -43,7 +43,7 @@ public class UsersActivity extends AppCompatActivity {
         user_list.setLayoutManager(new LinearLayoutManager(this));
 
         mDbRefUsers = FirebaseDatabase.getInstance().getReference(CHILD_USERS);
-        mDbRefUsers.keepSynced(true);
+//        mDbRefUsers.keepSynced(true);
     }
 
     @Override

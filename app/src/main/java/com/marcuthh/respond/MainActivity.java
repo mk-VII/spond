@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mAuth.getCurrentUser() != null) {
                     //get user data
                     mDbRef = mDatabase.getReference(TBL_USERS);
-                    mDbRef.keepSynced(true);
+//                    mDbRef.keepSynced(true);
                     mDbRef.addValueEventListener(loadUserAccountFromDatabase());
                     //calls initialiseActivity() from inside method once user retrieved
                 } else {
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         if (mDbRef == null) {
             //get account details for logged in user
             mDbRef = mDatabase.getReference(TBL_USERS);
-            mDbRef.keepSynced(true);
+//            mDbRef.keepSynced(true);
             mDbRef.addValueEventListener(loadUserAccountFromDatabase());
         }
     }
@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (mAuth.getCurrentUser().getUid() != null && !mAuth.getCurrentUser().getUid().equals("")) {
+                if (mAuth.getCurrentUser() != null && !mAuth.getCurrentUser().getUid().equals("")) {
                     DataSnapshot child = dataSnapshot.child(mAuth.getCurrentUser().getUid());
                     if (child != null) {
                         User acc = child.getValue(User.class);
