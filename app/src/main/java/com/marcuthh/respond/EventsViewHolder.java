@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -74,13 +75,16 @@ public class EventsViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    //return control to activity so event logic can be applied
-    public Switch getAttendingSwitchControl() {
-        return (Switch) view.findViewById(R.id.swch_event_attending);
+    public void setAttendingListener(CompoundButton.OnCheckedChangeListener listener) {
+        ((Switch) view.findViewById(R.id.swch_event_attending)).setOnCheckedChangeListener(listener);
     }
 
     public View getView() {
         return view;
+    }
+
+    public void setViewOnClickListener(View.OnClickListener listener) {
+        view.setOnClickListener(listener);
     }
 
     public void setView(View view) {

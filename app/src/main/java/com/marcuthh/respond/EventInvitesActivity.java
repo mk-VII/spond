@@ -107,12 +107,12 @@ public class EventInvitesActivity extends AppCompatActivity {
 
                         viewHolder.setEventAttending((model.getStatus() == EventInvite.ATTENDING));
                         //write select event for switch - manipulates database to edit user status
-                        viewHolder.getAttendingSwitchControl()
-                                .setOnCheckedChangeListener(attendSwitchListener(eventKey, model.getSentTimestamp()));
+                        viewHolder.setAttendingListener(
+                                attendSwitchListener(eventKey, model.getSentTimestamp()));
 
                         mDbRefEvents.child(eventKey).addValueEventListener(eventDataChangeListener(eventKey, viewHolder));
 
-                        viewHolder.getView().setOnClickListener(itemClickListener(eventKey));
+                        viewHolder.setViewOnClickListener(itemClickListener(eventKey));
                     }
                 };
 

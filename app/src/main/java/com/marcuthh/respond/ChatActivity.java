@@ -1,5 +1,6 @@
 package com.marcuthh.respond;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
@@ -46,6 +48,7 @@ public class ChatActivity extends AppCompatActivity {
     private static final String LOC_MESSAGES = "messages";
     private static final String LOC_USERS = "users";
     private static final String LOC_EVENTS = "events";
+    private static final String LOC_INVITES = "eventInvites";
     ////CONSTANTS////
 
     //Firebase components
@@ -395,32 +398,44 @@ public class ChatActivity extends AppCompatActivity {
                                         viewHolder.setEventDate(eventTimestamp);
 
                                         //get image from firebase storage and display
-                                        String eventImage = dataSnapshot.child("eventImage").getValue().toString();
-                                        if (eventImage != null && !eventImage.equals("")) {
-                                            FirebaseStorage.getInstance().getReference(
-                                                    "images/events/" + model.getEventKey() + "/" + eventImage
-                                            ).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Uri> task) {
-                                                    if (task.isSuccessful()) {
-                                                        viewHolder.setMessageEventImage(getApplicationContext(), task.getResult());
-                                                    } else {
-                                                        Log.d(TAG, "unable to fetch image at location");
+                                        if (dataSnapshot.child("eventImage").getValue() != null) {
+                                            String eventImage = dataSnapshot.child("eventImage").getValue().toString();
+                                            if (eventImage != null && !eventImage.equals("")) {
+                                                FirebaseStorage.getInstance().getReference(
+                                                        "images/events/" + model.getEventKey() + "/" + eventImage
+                                                ).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Uri> task) {
+                                                        if (task.isSuccessful()) {
+                                                            viewHolder.setMessageEventImage(getApplicationContext(), task.getResult());
+                                                        } else {
+                                                            Log.d(TAG, "unable to fetch image at location");
+                                                        }
                                                     }
-                                                }
-                                            });
+                                                });
+                                            }
                                         }
 
                                         //attendance for user viewing
-                                        if (dataSnapshot.child("eventInvites").hasChild(mCurrentUserId)) {
+                                        if (dataSnapshot.child(LOC_INVITES).hasChild(mCurrentUserId)) {
                                             long status = Long.parseLong(dataSnapshot
-                                                    .child("eventInvites")
+                                                    .child(LOC_INVITES)
                                                     .child(mCurrentUserId)
                                                     .child("status")
                                                     .getValue().toString());
+                                            long sentTimestamp = Long.parseLong(dataSnapshot
+                                                    .child(LOC_INVITES)
+                                                    .child(mCurrentUserId)
+                                                    .child("sentTimestamp")
+                                                    .getValue().toString()
+                                            );
 
                                             viewHolder.setEventAttending((status == EventInvite.ATTENDING));
+                                            viewHolder.setAttendingListener(
+                                                    attendSwitchListener(model.getEventKey(), sentTimestamp));
                                         }
+
+                                        viewHolder.setViewOnClickListener(itemClickListener(model.getEventKey()));
                                     } else {
                                         //don't display if event not found
                                         viewHolder.setEventVisible(View.GONE);
@@ -475,6 +490,72 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         message_list.setAdapter(recyclerAdapter);
+    }
+
+    private CompoundButton.OnCheckedChangeListener attendSwitchListener(final String eventKey, final long sentTimestamp) {
+        return new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                int response;
+                if (b) {
+                    response = EventInvite.ATTENDING;
+                } else {
+                    response = EventInvite.NOT_ATTENDING;
+                }
+
+                //data to be stored on event response
+                HashMap<String, Object> mapResponse = new HashMap<String, Object>();
+                mapResponse.put("status", response);
+                mapResponse.put("sentTimestamp", sentTimestamp);
+                mapResponse.put("responseTimestamp", ServerValue.TIMESTAMP);
+
+                //locations at which data is stored, relating to user and event
+                HashMap<String, Object> mapInvite = new HashMap<String, Object>();
+                String inviteLocEvent = LOC_EVENTS + "/" + eventKey + "/" + LOC_INVITES + "/" + mCurrentUserId;
+                String inviteLocUser = LOC_USERS + "/" + mCurrentUserId + "/" + LOC_INVITES + "/" + eventKey;
+                mapInvite.put(inviteLocEvent, mapResponse);
+                mapInvite.put(inviteLocUser, mapResponse);
+
+                //must use database root to reach both event and user nodes
+                DatabaseReference refRoot = FirebaseDatabase.getInstance().getReference();
+
+                //write changes to database
+                refRoot.updateChildren(mapInvite, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "error responding to event: " + databaseError.getMessage());
+                        }/* else {
+                            Snackbar.make(
+                                    findViewById(R.id.event_layout),
+                                    "Your status for this event has been updated",
+                                    Snackbar.LENGTH_LONG
+                            ).show();
+                        }*/
+                    }
+                });
+            }
+        };
+    }
+
+    private View.OnClickListener itemClickListener(final String eventKey) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int viewId = view.getId();
+
+                if (viewId == R.id.swch_event_attending) {
+
+                } else {
+                    Intent evIntent = new Intent(
+                            ChatActivity.this,
+                            EventDetailsActivity.class
+                    );
+                    evIntent.putExtra("EVENT_ID", eventKey);
+                    startActivity(evIntent);
+                }
+            }
+        };
     }
 
     private void getUserDefaultResponse() {

@@ -262,10 +262,22 @@ public class EventCreateActivity extends AppCompatActivity {
                     //default invite values that will be stored on event and user collections
                     final HashMap<String, Object> mapInviteDefault = new HashMap<String, Object>();
                     mapInviteDefault.put("sentTimestamp", eventCreated);
-                    mapInviteDefault.put("status", 0);
 
                     for (DataSnapshot member : chatSnapshot.child("members").getChildren()) {
                         String userKey = member.getKey();
+
+                        if (userKey.equals(mCurrentUserId)) {
+                            //admin user has already selected their response
+                            if (swch_event_attending.isChecked()) {
+                                mapInviteDefault.put("status", 1);
+                            } else {
+                                mapInviteDefault.put("status", -1);
+                            }
+                        } else {
+                            //defaults to 0 for all other users
+                            mapInviteDefault.put("status", 0);
+                        }
+
                         String inviteLocEvent = LOC_EVENTS + "/" + mEventId + "/" + LOC_INVITES + "/" + userKey;
                         String inviteLocUser = LOC_USERS + "/" + userKey + "/" + LOC_INVITES + "/" + mEventId;
 
